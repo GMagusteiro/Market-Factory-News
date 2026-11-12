@@ -27,14 +27,17 @@ Consequência: a V1 arranca só com **fontes oficiais** (Fed, BCE, SEC). É meno
 
 ## Calendário económico
 
-| Opção | Custo | Uso comercial | Decisão |
-|---|---|---|---|
-| Finance Calendar API | Grátis, sem chave (2000 pedidos/dia por IP; mais com chave grátis) | Sim, com ligação visível a financecalendar.com | **Escolhida** |
-| Forex Factory / Investing.com | Sem API | Proibido copiar/redistribuir | Excluir |
-| Finnhub, Trading Economics | Pago | — | Excluir |
-| FRED / ONS / Bank of England | Grátis | Oficiais, só EUA/Reino Unido | Complemento possível |
+Decisão (2026-11-12, Gonçalo): fase de teste **sem custos**, só com fontes oficiais gratuitas. O Finance Calendar, que eu tinha dado como grátis, exige conta paga (Starter US$9.99/ano, Build US$9.99/mês); rever se o teste correr bem.
 
-Cobertura: 14 países e as principais divulgações (não todas as menores). Obriga a atribuição visível no ecrã do calendário. Aviso: não inclui datas de resultados de empresas.
+| Fonte | Conteúdo | Estado |
+|---|---|---|
+| Fed (fomccalendars) | Datas das decisões do FOMC | **Feito** (migração 0005; 2027 provisório) |
+| Banco de Inglaterra (upcoming-mpc-dates) | Datas das decisões do MPC | **Feito** (migração 0005) |
+| BCE (calendário do Conselho do BCE) | Reuniões de política monetária | **Por fazer**: falta confirmar as datas na página oficial |
+| BLS (bls.ics, atualizado às sextas) | IPC, emprego (NFP), PPI, JOLTS dos EUA | **Por fazer**: parser do ficheiro ICS; horas em Nova Iorque |
+| Finance Calendar | 14 países, consenso e impacto | Pago; adiado |
+
+Limites desta opção: sem consenso/previsão, sem valor "atual" e sem classificação de impacto automática (as decisões de taxas são marcadas como impacto alto; o BLS será mapeado por tabela fixa). Cobre EUA, Reino Unido e (quando feito) Zona Euro.
 
 ## Requisitos técnicos da ingestão
 

@@ -70,7 +70,7 @@ Antes de dar uma tarefa por feita: `npm run lint`, `npm run typecheck`, `npm tes
 - Monetização adiada (decisão do Gonçalo): primeiro fluxo de utilizadores. Depois, subscrição Pro e/ou publicidade. Não assumir "tudo gratuito" espalhado pelo código: usar um único ponto de verificação de permissões quando houver planos.
 - Diferenciador (pedido do Gonçalo): notícias relevantes que mexem com ativos sem os nomearem (ex.: ímanes e terras raras). Modelo: ativos pertencem a temas; artigos têm `assetSlugs` (menções diretas) e `themes`; artigos da mesma história partilham `storyId`. Relevância 0–100 = 35% recência + 30% fontes que confirmam + 20% fiabilidade da fonte + 15% alcance. Em destaque exige ≥2 fontes. Regras primeiro, IA depois.
 - Fontes de notícias: ver `docs/SOURCES.md` (V1 só oficiais: Fed, BCE, SEC; WSJ/Bloomberg/Reuters excluídos por termos). Ingestão em `supabase/functions/ingest-news/index.ts` (ficheiro único, lógica pura testada em `ingest.test.ts`); passos de deploy em `docs/INGESTAO.md`. O contacto do User-Agent vem do segredo `INGEST_CONTACT`, nunca do código.
-- Fonte do calendário económico: Finance Calendar API (grátis, atribuição visível obrigatória); ainda não integrada.
+- Calendário económico: fase de teste sem custos, só fontes oficiais (ver `docs/SOURCES.md`). Migração 0005 (gerada por `scripts/gen-calendar.ts`, com `src/lib/zoned.ts` para o horário de verão) traz as decisões da Fed e do Banco de Inglaterra. Falta BCE e BLS (ICS). Finance Calendar é pago (US$9.99/ano): rever se o teste correr bem.
 - Web primeiro (decisão do Gonçalo: sem investimento inicial; não tem Mac). Framework: Expo Router web. Se o SEO for insuficiente, migrar o site para Next.js reaproveitando o backend.
 
 ## Modelo de acesso (decisão do Gonçalo)
