@@ -28,6 +28,7 @@ Estado atual: **Fase 1 concluída** (a correr no browser com dados de exemplo lo
 4. Design system único (cores, tipografia, espaçamentos num só ficheiro). Nada de estilos soltos nos ecrãs.
 5. Conteúdo de notícias: só título, fonte, data, link e resumo curto próprio. Nunca texto integral.
 6. Aviso legal: o conteúdo não é aconselhamento financeiro.
+7. Relevância e ligações por tema são informação, nunca recomendação. Escrever "ativos potencialmente relacionados"; nunca "comprar", "vender" nem previsões de preço.
 
 ## Comandos
 
@@ -66,5 +67,6 @@ Antes de dar uma tarefa por feita: `npm run lint`, `npm run typecheck`, `npm tes
 
 - Funil de analytics: `app_opened`, `onboarding_completed`, `asset_search_performed`. `paywall_viewed` e `subscribed` entram na Fase 5.
 - Monetização adiada (decisão do Gonçalo): primeiro fluxo de utilizadores. Depois, subscrição Pro e/ou publicidade. Não assumir "tudo gratuito" espalhado pelo código: usar um único ponto de verificação de permissões quando houver planos.
+- Diferenciador (pedido do Gonçalo): notícias relevantes que mexem com ativos sem os nomearem (ex.: ímanes e terras raras). Modelo: ativos pertencem a temas; artigos têm `assetSlugs` (menções diretas) e `themes`; artigos da mesma história partilham `storyId`. Relevância 0–100 = 35% recência + 30% fontes que confirmam + 20% fiabilidade da fonte + 15% alcance. Em destaque exige ≥2 fontes. Regras primeiro, IA depois.
 - Fonte do calendário económico: por decidir.
 - Web primeiro (decisão do Gonçalo: sem investimento inicial; não tem Mac). Framework: Expo Router web. Se o SEO for insuficiente, migrar o site para Next.js reaproveitando o backend.

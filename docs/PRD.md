@@ -9,6 +9,7 @@ Quem acompanha ações e forex hoje salta entre 3 ou 4 sites para saber o que ac
 1. **Perde-se tempo a procurar.** Para saber o que se passou com a NVIDIA na última semana é preciso visitar vários sítios e filtrar ruído à mão.
 2. **Não se confia nas fontes.** Há muito conteúdo de baixa qualidade e opinião disfarçada de notícia. Falta saber de onde vem cada coisa e que tipo de conteúdo é.
 3. **Falta ligar a notícia ao contexto macro.** A notícia da empresa e o evento do calendário económico desse dia vivem em sítios separados.
+4. **Notícias que mexem com um ativo sem o nomearem.** Uma declaração política ou uma decisão regulatória sobre um tema (ex.: ímanes e terras raras) pode mover as empresas desse setor, mas a notícia não as menciona. Pesquisar só pelo nome da empresa não as encontra.
 
 ## 2. Utilizador-alvo
 
@@ -28,6 +29,26 @@ Escolhes um ativo (ex.: NVIDIA, EUR/USD), escolhes um período, e vês só as no
 | F2 | **Watchlist pessoal** | Guardar ativos e ver um feed só com esses. |
 | F3 | **Calendário económico** | Eventos macro com data/hora, moeda/país e impacto (baixo/médio/alto), com ligação aos ativos afetados. |
 | F4 | **Etiqueta de fonte e tipo** | Cada artigo mostra a fonte e o tipo: notícia, opinião ou comunicado oficial. |
+| F5 | **Notícias relevantes por tema** | Notícias ligadas a ativos através de temas, e uma lista "Em destaque" com as histórias mais relevantes (ver abaixo). |
+
+### F5: notícias relevantes por tema (diferenciador)
+
+Para além das menções diretas, a app liga notícias a ativos através de **temas** (ex.: terras raras, semicondutores e IA, taxas de juro, energia). Cada ativo pertence a zero ou mais temas. Uma notícia sobre um tema aparece nas páginas dos ativos desse tema, com a indicação "Tema: …", e conta como notícia relevante para esses ativos.
+
+A página inicial tem **Em destaque**: as histórias mais relevantes das últimas 24 horas. Uma "história" agrupa os artigos que contam o mesmo acontecimento. A pontuação de relevância (0 a 100) combina:
+
+| Fator | Peso | Ideia |
+|---|---|---|
+| Recência | 35% | Decai para metade a cada 24 horas |
+| Confirmação | 30% | Quantas fontes diferentes cobrem a mesma história (máx. 5) |
+| Fiabilidade da fonte | 20% | Agências e comunicados oficiais pesam mais do que opinião |
+| Alcance | 15% | Quantos ativos (diretos e por tema) podem ser afetados (máx. 6) |
+
+Só entram em destaque histórias com pelo menos 2 fontes. A lista mostra os "ativos potencialmente relacionados" de cada história.
+
+Regras de comunicação: é informação, nunca recomendação. Não escrevemos "comprar", "vender" nem previsões; escrevemos "potencialmente relacionado". Uma história relevante não implica que o preço suba ou desça.
+
+Versão posterior (fora da V1): classificação por IA para descobrir ligações que as regras não apanham, e sinais de preço e volume para confirmar movimentos reais.
 
 Infraestrutura mínima que as funcionalidades exigem: conta por email (ligação mágica) ou Google, eliminar conta, política de privacidade e termos, consentimento de cookies, aviso de que o conteúdo não é aconselhamento financeiro. Na V1 tudo é gratuito e sem limites.
 

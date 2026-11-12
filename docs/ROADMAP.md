@@ -25,6 +25,8 @@ Objetivo: abrir a app, escolher um ativo, escolher um período e ver notícias. 
 - Conta por email (ligação mágica) e/ou Google (Supabase Auth)
 - Edge Function agendada para recolher notícias (RSS/APIs) e calendário; chaves só aqui
 - Associação notícia–ativo (aliases) e remoção de duplicados
+- **Relevância por temas (F5):** tabelas de temas, ativo–tema e notícia–tema; agrupamento de artigos em histórias; pontuação de relevância (recência, fontes que confirmam, fiabilidade, alcance); "Em destaque" na página inicial; notícias indiretas nas páginas dos ativos
+  - Primeiro com regras e listas de palavras por tema (sem IA). Classificação por IA numa fase posterior, numa Edge Function, com a chave só no servidor
 - A app deixa de usar JSON local e lê do Supabase; watchlist sincronizada
 - Apagar conta no site
 
