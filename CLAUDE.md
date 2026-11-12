@@ -87,6 +87,12 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Testes: `npm test` (inclui `supabase/tests/acesso.test.ts`, que corre as migrações num Postgres local). Browser: `e2e/browser.py` (build SEM Supabase: `EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_KEY= npm run export:web`) e `e2e/visitante.py` (build COM Supabase). Ambos esperam `npx serve dist -l 3000`.
 - Por configurar no painel do Supabase: Authentication > URL Configuration (Site URL e Redirect URLs com o endereço publicado). O servidor de email de origem do Supabase tem limite baixo de envios; para produção usar SMTP próprio (Resend).
 
+## Legal e consentimento (implementado)
+
+- Páginas `/legal/privacidade|termos|cookies` (texto em `src/i18n/legal.ts`, pt/en/es; é texto-base, rever com um jurista antes do lançamento público). Ligações no rodapé de `Screen`. O contacto só aparece se `EXPO_PUBLIC_CONTACT_EMAIL` estiver definido (não ficar no código).
+- Consentimento: `src/state/consent.tsx` (`useConsent()`: unset|accepted|rejected, guardado em AsyncStorage) e `ConsentBanner`. Analytics e Sentry só carregam com `accepted`. Teste: `e2e/legal.py` (build sem Supabase).
+- Emails de login: `docs/RESEND.md` (precisa de domínio próprio para enviar a qualquer pessoa).
+
 ## Idiomas (pt, en, es)
 
 - Textos em `src/i18n/messages.ts` (português define as chaves; en e es têm de as ter todas, o TypeScript e `src/i18n/i18n.test.ts` verificam). Usar `useI18n()` (`t`, `locale`) em vez de texto fixo; datas via `src/lib/format.ts` com o `locale`.

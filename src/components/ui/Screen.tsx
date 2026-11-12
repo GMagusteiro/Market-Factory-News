@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 import type { ReactNode } from 'react';
 
@@ -22,6 +23,17 @@ export function Screen({ children }: { children: ReactNode }) {
         <AppText variant="small" tone="muted" style={{ textAlign: 'center' }}>
           {t('legal.disclaimer')}
         </AppText>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: space.lg }}>
+          <Link href="/legal/privacidade">
+            <AppText variant="small" tone="primary">{t('footer.privacy')}</AppText>
+          </Link>
+          <Link href="/legal/termos">
+            <AppText variant="small" tone="primary">{t('footer.terms')}</AppText>
+          </Link>
+          <Link href="/legal/cookies">
+            <AppText variant="small" tone="primary">{t('footer.cookies')}</AppText>
+          </Link>
+        </View>
       </View>
     </ScrollView>
   );
