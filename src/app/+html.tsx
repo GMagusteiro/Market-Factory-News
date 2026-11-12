@@ -1,0 +1,27 @@
+import { ScrollViewStyleReset, useServerDocumentContext } from 'expo-router/html';
+import type { PropsWithChildren } from 'react';
+
+/**
+ * Documento HTML base do site (só corre na geração estática, no servidor).
+ * No SDK 58 é obrigatório desenhar `headNodes` (metadados e estilos) e
+ * `bodyNodes` (scripts e fontes), senão a página fica sem JavaScript.
+ */
+export default function Root({ children }: PropsWithChildren) {
+  const { headNodes, bodyNodes, htmlAttributes, bodyAttributes } = useServerDocumentContext();
+
+  return (
+    <html lang="pt-PT" {...htmlAttributes}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <ScrollViewStyleReset />
+        {headNodes}
+      </head>
+      <body {...bodyAttributes}>
+        {children}
+        {bodyNodes}
+      </body>
+    </html>
+  );
+}
