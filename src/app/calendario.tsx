@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router';
 import type { Metadata } from 'expo-router/server';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -8,15 +9,12 @@ import { Chip } from '@/components/ui/Chip';
 import { Screen } from '@/components/ui/Screen';
 import { useDataset } from '@/data';
 import { space } from '@/design/tokens';
+import { calendarAheadDays, canSeeCalendarHistory } from '@/lib/access';
 import type { Impact } from '@/lib/types';
+import { useAuth } from '@/state/auth';
 
 type View_ = 'upcoming' | 'past';
 type ImpactFilter = 'all' | Impact;
-
-const VIEWS: { key: View_; label: string }[] = [
-  { key: 'upcoming', label: 'Próximos 14 dias' },
-  { key: 'past', label: 'Últimos 14 dias' },
-];
 
 const IMPACTS: { key: ImpactFilter; label: string }[] = [
   { key: 'all', label: 'Todos' },
@@ -35,6 +33,14 @@ export function generateMetadata(): Metadata {
 }
 
 export default function CalendarScreen() {
+  const router = useRouter();
+  const auth = useAuth();
+  const ahead = calendarAheadDays(auth.tier, auth.enabled);
+  const history = canSeeCalendarHistory(auth.tier, auth.enabled);
+  const views: { key: View_; label: string }[] = [
+    { key: 'upcoming', label: `Próximos ${ahead} dias` },
+    { key: 'past', label: history ? 'Últimos 14 dias' : 'Últimos 14 dias · com conta' },
+  ];
   const [view, setView] = useState<View_>('upcoming');
   const [impact, setImpact] = useState<ImpactFilter>('all');
 
@@ -42,7 +48,7 @@ export default function CalendarScreen() {
   const now = nowDate.getTime();
   const events = calendarEvents.filter((event) => {
     const time = Date.parse(event.datetime);
-    const inView = view === 'upcoming' ? time >= now && time <= now + 14 * DAY : time < now && time >= now - 14 * DAY;
+    const inView = view === 'upcoming' ? time >= now && time <= now + ahead * DAY : time < now && time >= now - 14 * DAY;
     return inView && (impact === 'all' || event.impact === impact);
   });
 
@@ -54,8 +60,13 @@ export default function CalendarScreen() {
 
       <View style={{ gap: space.md }}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-          {VIEWS.map((option) => (
-            <Chip key={option.key} label={option.label} selected={view === option.key} onPress={() => setView(option.key)} />
+          {views.map((option) => (
+            <Chip
+              key={option.key}
+              label={option.label}
+              selected={view === option.key}
+              onPress={() => (option.key === 'past' && !history ? router.push('/conta') : setView(option.key))}
+            />
           ))}
         </View>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm }}>

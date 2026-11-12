@@ -1,10 +1,13 @@
+import { useRouter } from 'expo-router';
 import { TextInput, View } from 'react-native';
 
 import { useDataset } from '@/data';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
+import { canUsePeriod } from '@/lib/access';
 import { PERIOD_OPTIONS, toDay, type PeriodKey } from '@/lib/period';
 import type { PeriodState } from '@/lib/usePeriod';
+import { useAuth } from '@/state/auth';
 
 import { AppText } from './ui/AppText';
 import { Chip } from './ui/Chip';
@@ -15,9 +18,15 @@ const WEEK = 7 * 24 * 60 * 60 * 1000;
 export function PeriodFilter({ period }: { period: PeriodState }) {
   const { colors } = useTheme();
   const { now } = useDataset();
+  const router = useRouter();
+  const auth = useAuth();
   const { key, from, to, range, onChange } = period;
 
   function selectKey(next: PeriodKey) {
+    if (!canUsePeriod(next, auth.tier, auth.enabled)) {
+      router.push('/conta');
+      return;
+    }
     if (next === 'custom' && (!from || !to)) {
       onChange(next, toDay(new Date(now.getTime() - WEEK)), toDay(now));
     } else {
@@ -43,7 +52,7 @@ export function PeriodFilter({ period }: { period: PeriodState }) {
         {PERIOD_OPTIONS.map((option) => (
           <Chip
             key={option.key}
-            label={option.label}
+            label={canUsePeriod(option.key, auth.tier, auth.enabled) ? option.label : `${option.label} · com conta`}
             selected={key === option.key}
             onPress={() => selectKey(option.key)}
           />

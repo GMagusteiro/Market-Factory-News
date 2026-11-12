@@ -7,6 +7,7 @@ import { SampleBanner } from '@/components/SampleBanner';
 import { TopNav } from '@/components/TopNav';
 import { syncFromSupabase } from '@/data/remote';
 import { useTheme } from '@/design/useTheme';
+import { AuthProvider } from '@/state/auth';
 import { WatchlistProvider } from '@/state/watchlist';
 
 export default function RootLayout() {
@@ -17,6 +18,7 @@ export default function RootLayout() {
   }, []);
 
   return (
+    <AuthProvider>
     <WatchlistProvider>
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
         <SampleBanner />
@@ -25,5 +27,6 @@ export default function RootLayout() {
       </View>
       <StatusBar style="auto" />
     </WatchlistProvider>
+    </AuthProvider>
   );
 }

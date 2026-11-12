@@ -11,14 +11,16 @@ let client: SupabaseClient | null = null;
 
 /** Devolve o cliente, ou null se não houver configuração (a app usa dados locais). */
 export function getSupabase(): SupabaseClient | null {
-  if (!isSupabaseConfigured) return null;
+  // No servidor (geração estática) não há sessão nem armazenamento: não cria cliente.
+  if (!isSupabaseConfigured || typeof window === 'undefined') return null;
   if (!client) {
     client = createClient(url as string, key as string, {
       auth: {
         storage: AsyncStorage,
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false,
+        // Na web a ligação mágica e o Google voltam com a sessão no endereço.
+        detectSessionInUrl: typeof document !== 'undefined',
       },
     });
   }

@@ -3,12 +3,14 @@ import { View } from 'react-native';
 
 import { layout, space, typography } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
+import { useAuth } from '@/state/auth';
 import { useWatchlist } from '@/state/watchlist';
 
 export function TopNav() {
   const { colors } = useTheme();
   const pathname = usePathname();
   const { slugs, ready } = useWatchlist();
+  const auth = useAuth();
 
   const items = [
     { href: '/', label: 'Pesquisa', active: pathname === '/' || pathname.startsWith('/ativo') },
@@ -18,6 +20,9 @@ export function TopNav() {
       active: pathname.startsWith('/watchlist'),
     },
     { href: '/calendario', label: 'Calendário', active: pathname.startsWith('/calendario') },
+    ...(auth.enabled
+      ? [{ href: '/conta', label: auth.userId ? 'Conta' : 'Entrar', active: pathname.startsWith('/conta') }]
+      : []),
   ] as const;
 
   return (

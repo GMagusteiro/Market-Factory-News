@@ -75,3 +75,13 @@ Antes de dar uma tarefa por feita: `npm run lint`, `npm run typecheck`, `npm tes
 ## Modelo de acesso (decisão do Gonçalo)
 
 Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais conteúdos (ver docs/PRD.md, 5.1). Os limites têm de ser aplicados no servidor (RLS), não só na interface. A mesma base de código serve website e app.
+
+## Contas e acesso (implementado)
+
+- `src/state/auth.tsx` (AuthProvider/useAuth): sessão Supabase, nível `guest|free|premium`. O nível vem de `profiles.tier`, que o utilizador só lê; o Gonçalo altera no painel do Supabase (Table Editor > profiles).
+- `src/lib/access.ts`: regras (visitante: 24h e 7 dias, calendário 7 dias à frente sem histórico; com conta: tudo). Sem Supabase configurado nada é bloqueado.
+- O servidor aplica o mesmo: `supabase/migrations/0003_contas_e_acesso.sql` (RLS por nível, `delete_my_account()`, trigger que cria o perfil). Dados `is_sample` ficam sempre visíveis.
+- Watchlist: local para visitantes; com sessão junta a lista local com a da conta e sincroniza (`src/state/watchlist.tsx`). Ao sair, limpa a lista do dispositivo.
+- Página `/conta`: entrar por ligação mágica (Google só se `EXPO_PUBLIC_GOOGLE_LOGIN=1` e o fornecedor estiver configurado no Supabase), sair, apagar conta.
+- Testes: `npm test` (inclui `supabase/tests/acesso.test.ts`, que corre as migrações num Postgres local). Browser: `e2e/browser.py` (build SEM Supabase: `EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_KEY= npm run export:web`) e `e2e/visitante.py` (build COM Supabase). Ambos esperam `npx serve dist -l 3000`.
+- Por configurar no painel do Supabase: Authentication > URL Configuration (Site URL e Redirect URLs com o endereço publicado). O servidor de email de origem do Supabase tem limite baixo de envios; para produção usar SMTP próprio (Resend).
