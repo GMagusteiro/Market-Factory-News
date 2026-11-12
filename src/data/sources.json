@@ -1,7 +1,7 @@
 [
-  { "id": "agencia-exemplo", "name": "Agência Exemplo", "type": "news" },
-  { "id": "diario-exemplo", "name": "Diário Financeiro Exemplo", "type": "news" },
-  { "id": "opiniao-exemplo", "name": "Coluna de Opinião Exemplo", "type": "opinion" },
-  { "id": "ri-exemplo", "name": "Relações com Investidores (exemplo)", "type": "official" },
-  { "id": "banco-central-exemplo", "name": "Banco Central (exemplo)", "type": "official" }
+  {"id": "agencia-exemplo", "name": "Agência Exemplo", "type": "news", "tier": 1},
+  {"id": "diario-exemplo", "name": "Diário Financeiro Exemplo", "type": "news", "tier": 2},
+  {"id": "opiniao-exemplo", "name": "Coluna de Opinião Exemplo", "type": "opinion", "tier": 3},
+  {"id": "ri-exemplo", "name": "Relações com Investidores (exemplo)", "type": "official", "tier": 1},
+  {"id": "banco-central-exemplo", "name": "Banco Central (exemplo)", "type": "official", "tier": 1}
 ]

@@ -1,0 +1,6 @@
+[
+  {"slug": "terras-raras", "name": "Terras raras e ímanes", "description": "Cadeia de abastecimento de terras raras e de ímanes permanentes."},
+  {"slug": "semicondutores-ia", "name": "Semicondutores e IA", "description": "Chips, equipamento de produção e procura por inteligência artificial."},
+  {"slug": "taxas-de-juro", "name": "Taxas de juro", "description": "Decisões e sinais dos bancos centrais sobre taxas de juro."},
+  {"slug": "energia", "name": "Energia", "description": "Preços de petróleo, gás e eletricidade e decisões dos produtores."}
+]

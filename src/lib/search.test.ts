@@ -30,7 +30,8 @@ test('períodos mais longos devolvem mais notícias', () => {
   const count = (key: '24h' | '7d' | '30d') => {
     const range = resolveRange(key, '', '', SAMPLE_NOW);
     assert.ok(range);
-    return articles.filter((a) => a.assetSlug === 'nvda' && inRange(a.publishedAt, range)).length;
+    return articles.filter((a) => a.assetSlugs.includes('nvda') && inRange(a.publishedAt, range))
+      .length;
   };
   assert.ok(count('24h') <= count('7d'));
   assert.ok(count('7d') < count('30d'));
