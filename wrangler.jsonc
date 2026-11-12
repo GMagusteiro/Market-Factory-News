@@ -1,0 +1,9 @@
+{
+  // Publicação no Cloudflare (ficheiros estáticos gerados por `npm run export:web`).
+  "name": "marketlens",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page"
+  }
+}
