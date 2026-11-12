@@ -1,0 +1,22 @@
+[
+  { "id": "e01", "title": "Inflação (IPC) – Zona Euro", "datetime": "2026-10-30T10:00:00Z", "currency": "EUR", "country": "Zona Euro", "impact": "high" },
+  { "id": "e06", "title": "Vendas a retalho – Reino Unido", "datetime": "2026-10-23T07:00:00Z", "currency": "GBP", "country": "Reino Unido", "impact": "medium" },
+  { "id": "e20", "title": "Decisão de taxas de juro (RBA)", "datetime": "2026-11-03T03:30:00Z", "currency": "AUD", "country": "Austrália", "impact": "high" },
+  { "id": "e05", "title": "PMI industrial – Zona Euro", "datetime": "2026-11-03T09:00:00Z", "currency": "EUR", "country": "Zona Euro", "impact": "medium" },
+  { "id": "e04", "title": "Decisão de taxas de juro (BoE)", "datetime": "2026-11-05T12:00:00Z", "currency": "GBP", "country": "Reino Unido", "impact": "high" },
+  { "id": "e02", "title": "Decisão de taxas de juro (Fed)", "datetime": "2026-11-05T19:00:00Z", "currency": "USD", "country": "Estados Unidos", "impact": "high" },
+  { "id": "e03", "title": "Relatório de emprego (NFP) – EUA", "datetime": "2026-11-06T13:30:00Z", "currency": "USD", "country": "Estados Unidos", "impact": "high" },
+  { "id": "e19", "title": "Taxa de desemprego – Canadá", "datetime": "2026-11-06T13:30:00Z", "currency": "CAD", "country": "Canadá", "impact": "medium" },
+  { "id": "e07", "title": "Balança comercial – Japão", "datetime": "2026-11-09T23:50:00Z", "currency": "JPY", "country": "Japão", "impact": "low" },
+  { "id": "e08", "title": "Taxa de desemprego – Austrália", "datetime": "2026-11-12T00:30:00Z", "currency": "AUD", "country": "Austrália", "impact": "medium" },
+  { "id": "e09", "title": "Pedidos de subsídio de desemprego – EUA", "datetime": "2026-11-12T13:30:00Z", "currency": "USD", "country": "Estados Unidos", "impact": "low" },
+  { "id": "e10", "title": "Inflação (IPC) – EUA", "datetime": "2026-11-13T13:30:00Z", "currency": "USD", "country": "Estados Unidos", "impact": "high" },
+  { "id": "e11", "title": "PIB (preliminar) – Zona Euro", "datetime": "2026-11-14T10:00:00Z", "currency": "EUR", "country": "Zona Euro", "impact": "medium" },
+  { "id": "e12", "title": "Vendas a retalho – EUA", "datetime": "2026-11-17T13:30:00Z", "currency": "USD", "country": "Estados Unidos", "impact": "medium" },
+  { "id": "e17", "title": "Inflação (IPC) – Reino Unido", "datetime": "2026-11-18T07:00:00Z", "currency": "GBP", "country": "Reino Unido", "impact": "high" },
+  { "id": "e15", "title": "Confiança do consumidor – Suíça", "datetime": "2026-11-18T07:00:00Z", "currency": "CHF", "country": "Suíça", "impact": "low" },
+  { "id": "e13", "title": "Decisão de taxas de juro (BCE)", "datetime": "2026-11-19T13:15:00Z", "currency": "EUR", "country": "Zona Euro", "impact": "high" },
+  { "id": "e14", "title": "PIB – Canadá", "datetime": "2026-11-20T13:30:00Z", "currency": "CAD", "country": "Canadá", "impact": "medium" },
+  { "id": "e18", "title": "PMI de serviços – EUA", "datetime": "2026-11-21T14:45:00Z", "currency": "USD", "country": "Estados Unidos", "impact": "medium" },
+  { "id": "e16", "title": "Decisão de taxas de juro (BoJ)", "datetime": "2026-11-24T03:00:00Z", "currency": "JPY", "country": "Japão", "impact": "high" }
+]
