@@ -3,6 +3,7 @@ import type { Metadata } from 'expo-router/server';
 import { View } from 'react-native';
 
 import { AssetPicker } from '@/components/AssetPicker';
+import { OnboardingCard } from '@/components/OnboardingCard';
 import { EventList } from '@/components/EventList';
 import { StoryList } from '@/components/StoryList';
 import { AppText } from '@/components/ui/AppText';
@@ -14,6 +15,7 @@ import { space, typography } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
 import { useI18n } from '@/i18n';
 import { topStories } from '@/lib/relevance';
+import { track } from '@/state/analytics';
 
 const POPULAR_SLUGS = ['nvda', 'aapl', 'msft', 'tsla', 'eur-usd', 'usd-jpy'];
 const WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -55,7 +57,14 @@ export default function HomeScreen() {
         </AppText>
       </View>
 
-      <AssetPicker onSelect={(asset) => goToAsset(asset.slug)} />
+      <OnboardingCard />
+
+      <AssetPicker
+        onSelect={(asset) => {
+          track('asset_search_performed', { slug: asset.slug });
+          goToAsset(asset.slug);
+        }}
+      />
 
       <Section
         title={t('home.highlights.title')}

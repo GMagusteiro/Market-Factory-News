@@ -93,6 +93,12 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Consentimento: `src/state/consent.tsx` (`useConsent()`: unset|accepted|rejected, guardado em AsyncStorage) e `ConsentBanner`. Analytics e Sentry só carregam com `accepted`. Teste: `e2e/legal.py` (build sem Supabase).
 - Emails de login: `docs/RESEND.md` (precisa de domínio próprio para enviar a qualquer pessoa).
 
+## Onboarding e analytics (Fase 3, implementado)
+
+- `/bem-vindo` (interesse: ações/forex/ambos, escolher ≥3 ativos, cria a watchlist) e convite `OnboardingCard` na página inicial (dispensável; estado em `src/state/onboarding.ts`). Lógica pura em `src/lib/onboarding.ts`. Teste: `e2e/onboarding.py`.
+- Analytics sem SDK: `src/lib/analytics.ts` (POST ao PostHog, só com consentimento aceite e `EXPO_PUBLIC_POSTHOG_KEY`) + `src/state/analytics.tsx` (`track()`, identificador anónimo só depois de aceitar). Eventos: `app_opened`, `onboarding_completed`, `asset_search_performed`. Sem chave, nada é enviado.
+- Sentry: **por fazer** (precisa de DSN do Gonçalo; ligar só com consentimento).
+
 ## Idiomas (pt, en, es)
 
 - Textos em `src/i18n/messages.ts` (português define as chaves; en e es têm de as ter todas, o TypeScript e `src/i18n/i18n.test.ts` verificam). Usar `useI18n()` (`t`, `locale`) em vez de texto fixo; datas via `src/lib/format.ts` com o `locale`.
