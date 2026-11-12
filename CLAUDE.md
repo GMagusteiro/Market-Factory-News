@@ -71,3 +71,7 @@ Antes de dar uma tarefa por feita: `npm run lint`, `npm run typecheck`, `npm tes
 - Diferenciador (pedido do Gonçalo): notícias relevantes que mexem com ativos sem os nomearem (ex.: ímanes e terras raras). Modelo: ativos pertencem a temas; artigos têm `assetSlugs` (menções diretas) e `themes`; artigos da mesma história partilham `storyId`. Relevância 0–100 = 35% recência + 30% fontes que confirmam + 20% fiabilidade da fonte + 15% alcance. Em destaque exige ≥2 fontes. Regras primeiro, IA depois.
 - Fonte do calendário económico: por decidir.
 - Web primeiro (decisão do Gonçalo: sem investimento inicial; não tem Mac). Framework: Expo Router web. Se o SEO for insuficiente, migrar o site para Next.js reaproveitando o backend.
+
+## Modelo de acesso (decisão do Gonçalo)
+
+Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais conteúdos (ver docs/PRD.md, 5.1). Os limites têm de ser aplicados no servidor (RLS), não só na interface. A mesma base de código serve website e app.

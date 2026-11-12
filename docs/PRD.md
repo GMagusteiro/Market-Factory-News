@@ -50,7 +50,23 @@ Regras de comunicação: é informação, nunca recomendação. Não escrevemos 
 
 Versão posterior (fora da V1): classificação por IA para descobrir ligações que as regras não apanham, e sinais de preço e volume para confirmar movimentos reais.
 
-Infraestrutura mínima que as funcionalidades exigem: conta por email (ligação mágica) ou Google, eliminar conta, política de privacidade e termos, consentimento de cookies, aviso de que o conteúdo não é aconselhamento financeiro. Na V1 tudo é gratuito e sem limites.
+Infraestrutura mínima que as funcionalidades exigem: conta por email (ligação mágica) ou Google, eliminar conta, política de privacidade e termos, consentimento de cookies, aviso de que o conteúdo não é aconselhamento financeiro. Na V1 tudo é gratuito. O acesso funciona em dois níveis (secção 5.1): visitante sem registo e conta gratuita.
+
+### 5.1. Modelo de acesso: visitante vs. conta gratuita
+
+Regra do Gonçalo: **qualquer pessoa entra sem registo; quem se regista (gratuito) tem acesso a mais conteúdos.** A mesma base de código serve o **website** e a **app** (web primeiro, iOS na Fase 6).
+
+Proposta inicial de repartição (a confirmar e ajustar pelo Gonçalo antes de implementar):
+
+| | Visitante | Conta gratuita |
+|---|---|---|
+| Pesquisa por ativo, páginas dos ativos | Sim | Sim |
+| Notícias por período | Até 7 dias | Até 30 dias e período personalizado |
+| Em destaque e notícias por tema | Sim (resumo) | Completo |
+| Calendário económico | Próximos 7 dias | Histórico e filtros completos |
+| Watchlist | Só neste dispositivo | Sincronizada entre dispositivos |
+
+Princípios: as páginas dos ativos continuam públicas e indexáveis (SEO); o limite é aplicado também no servidor (RLS/consultas), nunca só na interface; os pedidos de registo mostram o valor que se ganha, sem bloquear a navegação.
 
 ## 5. Fora da V1
 
@@ -73,7 +89,7 @@ Idioma da interface: português europeu. Conteúdo: sobretudo inglês, com fonte
 2. **Proposta de valor** (2 ecrãs curtos): "Todas as notícias de um ativo num só sítio" e "Fontes que podes verificar".
 3. **Mercados de interesse**: ações, forex ou ambos.
 4. **Escolher ativos**: pelo menos 3 para a watchlist inicial (sugestões populares + pesquisa). Mostra logo uma pré-visualização com notícias reais do primeiro ativo.
-5. **Criar conta** (email com ligação mágica ou Google): guarda e sincroniza a watchlist. A pesquisa e o calendário funcionam sem conta.
+5. **Criar conta** (email com ligação mágica ou Google): guarda e sincroniza a watchlist. O registo é opcional: a pesquisa e o calendário funcionam sem conta (ver 5.1).
 6. **Ecrã principal**: feed da watchlist, com pesquisa e calendário.
 
 O fluxo termina aqui na V1. O lugar do paywall (entre os passos 5 e 6) fica reservado para quando a monetização entrar.

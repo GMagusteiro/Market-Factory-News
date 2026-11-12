@@ -29,6 +29,7 @@ Objetivo: abrir a app, escolher um ativo, escolher um período e ver notícias. 
   - Primeiro com regras e listas de palavras por tema (sem IA). Classificação por IA numa fase posterior, numa Edge Function, com a chave só no servidor
 - A app deixa de usar JSON local e lê do Supabase; watchlist sincronizada
 - Apagar conta no site
+- **Acesso em dois níveis (PRD 5.1):** visitante sem registo e conta gratuita com mais conteúdo; limites aplicados também no servidor (RLS). Website e app partilham o mesmo código
 
 ## Fase 3 — Onboarding e analytics (pronto para publicar)
 
