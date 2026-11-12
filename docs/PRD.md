@@ -1,6 +1,6 @@
 # PRD — MarketLens (nome de trabalho)
 
-Estado: **rascunho v0.2**. Monetização adiada: primeiro construímos valor e fluxo de utilizadores (ver secção 7).
+Estado: **rascunho v0.3**. Web primeiro (sem investimento inicial); a app iOS vem depois. Monetização adiada: primeiro construímos valor e fluxo de utilizadores (ver secção 7).
 
 ## 1. Problema
 
@@ -29,14 +29,14 @@ Escolhes um ativo (ex.: NVIDIA, EUR/USD), escolhes um período, e vês só as no
 | F3 | **Calendário económico** | Eventos macro com data/hora, moeda/país e impacto (baixo/médio/alto), com ligação aos ativos afetados. |
 | F4 | **Etiqueta de fonte e tipo** | Cada artigo mostra a fonte e o tipo: notícia, opinião ou comunicado oficial. |
 
-Infraestrutura mínima que as funcionalidades exigem: login com Apple, eliminar conta, política de privacidade e termos, aviso de que o conteúdo não é aconselhamento financeiro. Na V1 tudo é gratuito e sem limites.
+Infraestrutura mínima que as funcionalidades exigem: conta por email (ligação mágica) ou Google, eliminar conta, política de privacidade e termos, consentimento de cookies, aviso de que o conteúdo não é aconselhamento financeiro. Na V1 tudo é gratuito e sem limites.
 
 ## 5. Fora da V1
 
 - Paywall, subscrições e publicidade (adiados, ver secção 7)
 - Alertas e notificações push
 - Resumos com IA (candidato natural para uma versão 2, via Edge Function)
-- Android e web
+- App iOS e Android (a V1 é só site)
 - Criptomoedas, matérias-primas e outros ativos
 - Cotações em tempo real, gráficos e análise técnica
 - Comunidade, fórum ou comentários
@@ -52,7 +52,7 @@ Idioma da interface: português europeu. Conteúdo: sobretudo inglês, com fonte
 2. **Proposta de valor** (2 ecrãs curtos): "Todas as notícias de um ativo num só sítio" e "Fontes que podes verificar".
 3. **Mercados de interesse**: ações, forex ou ambos.
 4. **Escolher ativos**: pelo menos 3 para a watchlist inicial (sugestões populares + pesquisa). Mostra logo uma pré-visualização com notícias reais do primeiro ativo.
-5. **Iniciar sessão com a Apple**: guarda e sincroniza a watchlist.
+5. **Criar conta** (email com ligação mágica ou Google): guarda e sincroniza a watchlist. A pesquisa e o calendário funcionam sem conta.
 6. **Ecrã principal**: feed da watchlist, com pesquisa e calendário.
 
 O fluxo termina aqui na V1. O lugar do paywall (entre os passos 5 e 6) fica reservado para quando a monetização entrar.
@@ -61,8 +61,8 @@ O fluxo termina aqui na V1. O lugar do paywall (entre os passos 5 e 6) fica rese
 
 Decisão: **não monetizamos na V1**. Primeiro garantimos que há utilizadores que voltam; quando houver fluxo, passamos a exigir mais valor. Opções para depois, por ordem de probabilidade:
 
-1. **Subscrição Pro** (Superwall + StoreKit): limites no plano gratuito (ex.: nº de ativos, histórico) e extras como alertas. Preços só se definem com dados reais.
-2. **Publicidade**: só com tráfego que a justifique. Em iOS exige o pedido de consentimento de rastreamento e atualizar a declaração de privacidade da App Store, e o rendimento por utilizador costuma ser baixo.
+1. **Subscrição Pro** (na web, por exemplo Stripe; Superwall + StoreKit só na app): limites no plano gratuito (ex.: nº de ativos, histórico) e extras como alertas. Preços só se definem com dados reais.
+2. **Publicidade**: só com tráfego que a justifique. Na web exige consentimento de cookies (RGPD) e aprovação da rede de anúncios, e o rendimento por visita costuma ser baixo.
 
 Risco assumido: as notícias já estão disponíveis gratuitamente noutros sítios. O valor a vender é poupança de tempo e qualidade de curadoria, não o acesso à informação.
 
@@ -90,4 +90,5 @@ Qualidade: erros e crashes no Sentry, sessões sem crash > 99%.
 2. **Licenças de conteúdo.** Planos gratuitos de APIs de notícias costumam ser para uso pessoal. Para uma app pública é provável que seja preciso um plano pago, ou usar RSS e fontes primárias (SEC, bancos centrais). Mostramos só título, fonte, data, link e resumo curto.
 3. **Relevância.** Associar bem uma notícia a uma empresa (aliases, ambiguidade de tickers) e agrupar duplicados.
 4. **Retenção.** Sem monetização, o sinal de sucesso é o utilizador voltar. Se o retorno ao dia 7 for baixo, rever o produto antes de pensar em receita.
-5. **Regras da App Store.** App financeira de notícias: não dar aconselhamento, incluir aviso legal, apagar conta in-app e revogar o token da Apple ao apagar.
+5. **Regras legais.** Site financeiro de notícias: não dar aconselhamento, incluir aviso legal, RGPD (cookies, apagar conta). As regras da App Store só contam na fase da app.
+6. **SEO com Expo Router.** Para as páginas por ativo aparecerem no Google é preciso usar a saída web estática. A web é secundária no Expo; se o SEO se mostrar insuficiente, migrar o site para Next.js reaproveitando o backend.
