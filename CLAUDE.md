@@ -2,7 +2,7 @@
 
 Site de notícias de ações e forex por ativo e período (web primeiro, app iOS mais tarde), com calendário económico e watchlist. Documentos: `docs/PRD.md` (produto) e `docs/ROADMAP.md` (fases).
 
-Estado atual: **Fase 1 concluída** (a correr no browser com dados de exemplo locais). A seguir: plano da Fase 2, por aprovar. Atualizar esta secção no fim de cada fase.
+Estado atual: **Fase 1 concluída. Fase 2 em curso**: a relevância por temas (F5) já funciona com dados de exemplo locais, 18 testes de lógica e 31 verificações no browser. Falta na Fase 2: Supabase (tabelas com RLS, conta, recolha de notícias por Edge Function, watchlist sincronizada, apagar conta) e a fonte do calendário. Bloqueado à espera de: projeto Supabase do Gonçalo (URL e chave pública). Atualizar esta secção no fim de cada fase.
 
 ## Como trabalhamos
 
@@ -50,7 +50,8 @@ Antes de dar uma tarefa por feita: `npm run lint`, `npm run typecheck`, `npm tes
 - `src/design/`: design system. `tokens.ts` (cores claro/escuro, espaçamentos, tipografia) e `useTheme.ts`. Nada de cores ou tamanhos soltos nos ecrãs.
 - `src/components/`: componentes de funcionalidade (`AssetPicker`, `PeriodFilter`, `NewsList`, `EventList`, `TopNav`, `SampleBanner`); `ui/` tem os blocos básicos (`AppText`, `Button`, `Chip`, `Badge`, `Card`, `Section`, `Screen`).
 - `src/data/`: DADOS DE EXEMPLO (fictícios) em JSON + `index.ts`, que gera as notícias. `SAMPLE_NOW` é a data fixa de "agora" (2026-11-12T12:00Z); na Fase 2 passa a hora real e os dados vêm do Supabase.
-- `src/lib/`: lógica pura e testada (`period.ts`, `search.ts`, `format.ts`, `usePeriod.ts`, `types.ts`).
+- `src/lib/`: lógica pura e testada (`period.ts`, `search.ts`, `format.ts`, `usePeriod.ts`, `types.ts`). `news.ts` devolve as notícias de um ativo (menções diretas e ligadas por tema); `relevance.ts` agrupa artigos em histórias, pontua (0–100) e escolhe o "Em destaque".
+- Dados de exemplo incluem temas (`themes.json`), nível de fiabilidade por fonte (`tier`) e 4 histórias multi-fonte. Cada ativo tem `themes`; cada artigo tem `assetSlugs`, `themes` e `storyId`.
 - `src/state/watchlist.tsx`: watchlist em AsyncStorage (no browser, localStorage).
 
 ## Notas sobre o Expo SDK 58 e este ambiente
