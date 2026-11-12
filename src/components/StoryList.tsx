@@ -2,6 +2,7 @@ import { Linking, Pressable, View } from 'react-native';
 
 import { getSource } from '@/data';
 import { space } from '@/design/tokens';
+import { useI18n, useThemeName } from '@/i18n';
 import { formatDateTime } from '@/lib/format';
 import type { Story } from '@/lib/types';
 
@@ -20,6 +21,8 @@ interface StoryListProps {
 
 /** Histórias em destaque: o que mais importa, confirmado por várias fontes. */
 export function StoryList({ stories, onOpenAsset, emptyText }: StoryListProps) {
+  const { t, locale } = useI18n();
+  const themeName = useThemeName();
   if (stories.length === 0) {
     return (
       <Card>
@@ -38,32 +41,32 @@ export function StoryList({ stories, onOpenAsset, emptyText }: StoryListProps) {
         const hidden = story.affected.length - shown.length;
 
         return (
-          <Card key={story.id} accessibilityLabel={`História: ${story.title}`}>
+          <Card key={story.id} accessibilityLabel={t('story.aria', { title: story.title })}>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-              <Badge label={`Relevância ${story.score}/100`} tone="primary" />
+              <Badge label={t('story.relevance', { n: story.score })} tone="primary" />
               {story.themes.map((theme) => (
-                <Badge key={theme.slug} label={theme.name} />
+                <Badge key={theme.slug} label={themeName(theme)} />
               ))}
             </View>
 
             <Pressable
               accessibilityRole="link"
-              accessibilityLabel={`${story.title}. Abre o artigo original.`}
+              accessibilityLabel={t('news.open', { title: story.title })}
               onPress={() => Linking.openURL(story.leadArticle.url)}>
               <AppText variant="subheading">{story.title}</AppText>
             </Pressable>
 
             <AppText variant="small" tone="muted">
-              {story.sourceCount} fontes · atualizada {formatDateTime(story.updatedAt)}
+              {t('story.sources', { n: story.sourceCount, date: formatDateTime(story.updatedAt, locale) })}
             </AppText>
             <AppText variant="small" tone="muted">
-              Fontes: {sourceNames.join(', ')}
+              {t('story.sourceList', { names: sourceNames.join(', ') })}
             </AppText>
 
             {shown.length > 0 ? (
               <View style={{ gap: space.sm, marginTop: space.xs }}>
                 <AppText variant="label" tone="muted">
-                  ATIVOS POTENCIALMENTE RELACIONADOS
+                  {t('story.related')}
                 </AppText>
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
                   {shown.map(({ asset }) => (
@@ -81,8 +84,7 @@ export function StoryList({ stories, onOpenAsset, emptyText }: StoryListProps) {
         );
       })}
       <AppText variant="small" tone="muted">
-        As ligações por tema são automáticas e meramente informativas. Não são recomendações de
-        investimento nem indicam que o preço vá subir ou descer.
+        {t('story.disclaimer')}
       </AppText>
     </View>
   );

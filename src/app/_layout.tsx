@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { SampleBanner } from '@/components/SampleBanner';
 import { TopNav } from '@/components/TopNav';
 import { syncFromSupabase } from '@/data/remote';
+import { LanguageProvider } from '@/i18n';
 import { useTheme } from '@/design/useTheme';
 import { AuthProvider } from '@/state/auth';
 import { WatchlistProvider } from '@/state/watchlist';
@@ -18,6 +19,7 @@ export default function RootLayout() {
   }, []);
 
   return (
+    <LanguageProvider>
     <AuthProvider>
     <WatchlistProvider>
       <View style={{ flex: 1, backgroundColor: colors.bg }}>
@@ -28,5 +30,6 @@ export default function RootLayout() {
       <StatusBar style="auto" />
     </WatchlistProvider>
     </AuthProvider>
+    </LanguageProvider>
   );
 }

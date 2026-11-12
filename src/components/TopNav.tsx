@@ -1,8 +1,10 @@
 import { Link, usePathname } from 'expo-router';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { layout, space, typography } from '@/design/tokens';
+import { AppText } from './ui/AppText';
 import { useTheme } from '@/design/useTheme';
+import { LANGS, useI18n } from '@/i18n';
 import { useAuth } from '@/state/auth';
 import { useWatchlist } from '@/state/watchlist';
 
@@ -11,17 +13,18 @@ export function TopNav() {
   const pathname = usePathname();
   const { slugs, ready } = useWatchlist();
   const auth = useAuth();
+  const { t, lang, setLang } = useI18n();
 
   const items = [
-    { href: '/', label: 'Pesquisa', active: pathname === '/' || pathname.startsWith('/ativo') },
+    { href: '/', label: t('nav.search'), active: pathname === '/' || pathname.startsWith('/ativo') },
     {
       href: '/watchlist',
-      label: ready && slugs.length > 0 ? `Watchlist (${slugs.length})` : 'Watchlist',
+      label: ready && slugs.length > 0 ? t('nav.watchlistN', { n: slugs.length }) : t('nav.watchlist'),
       active: pathname.startsWith('/watchlist'),
     },
-    { href: '/calendario', label: 'Calendário', active: pathname.startsWith('/calendario') },
+    { href: '/calendario', label: t('nav.calendar'), active: pathname.startsWith('/calendario') },
     ...(auth.enabled
-      ? [{ href: '/conta', label: auth.userId ? 'Conta' : 'Entrar', active: pathname.startsWith('/conta') }]
+      ? [{ href: '/conta', label: auth.userId ? t('nav.account') : t('nav.signIn'), active: pathname.startsWith('/conta') }]
       : []),
   ] as const;
 
@@ -63,6 +66,31 @@ export function TopNav() {
             {item.label}
           </Link>
         ))}
+        <View
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t('nav.language')}
+          style={{ flexDirection: 'row', gap: space.xs, marginLeft: 'auto' }}>
+          {LANGS.map((option) => (
+            <Pressable
+              key={option.code}
+              accessibilityRole="radio"
+              accessibilityState={{ selected: lang === option.code }}
+              accessibilityLabel={option.name}
+              onPress={() => setLang(option.code)}
+              style={{
+                paddingHorizontal: space.sm,
+                paddingVertical: space.xs,
+                borderRadius: 6,
+                backgroundColor: lang === option.code ? colors.primarySoft : 'transparent',
+              }}>
+              <AppText
+                variant="small"
+                style={{ fontWeight: '700', color: lang === option.code ? colors.primary : colors.textMuted }}>
+                {option.label}
+              </AppText>
+            </Pressable>
+          ))}
+        </View>
       </View>
     </View>
   );

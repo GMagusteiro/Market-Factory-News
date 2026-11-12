@@ -10,6 +10,7 @@ import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
+import { useI18n, type MessageKey } from '@/i18n';
 import { useAuth } from '@/state/auth';
 
 const GOOGLE_ENABLED = process.env.EXPO_PUBLIC_GOOGLE_LOGIN === '1';
@@ -18,16 +19,13 @@ export function generateMetadata(): Metadata {
   return { title: 'Conta | MarketLens', robots: 'noindex' };
 }
 
-const BENEFITS = [
-  'Notícias dos últimos 30 dias e períodos personalizados',
-  'Calendário económico com histórico e 14 dias à frente',
-  'Watchlist sincronizada entre dispositivos',
-];
+const BENEFITS: MessageKey[] = ['login.benefit1', 'login.benefit2', 'login.benefit3'];
 
 export default function AccountScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const auth = useAuth();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -39,7 +37,7 @@ export default function AccountScreen() {
     setError(null);
     const message = await action();
     setBusy(false);
-    if (message) setError(message);
+    if (message) setError(message === 'unavailable' ? t('account.unavailable') : message);
     else onOk?.();
   }
 
@@ -49,10 +47,10 @@ export default function AccountScreen() {
     return (
       <Screen>
         <AppText variant="title" accessibilityRole="header">
-          Conta
+          {t('account.title')}
         </AppText>
         <Card>
-          <AppText tone="muted">O registo ainda não está ativo nesta versão.</AppText>
+          <AppText tone="muted">{t('account.disabled')}</AppText>
         </Card>
       </Screen>
     );
@@ -62,7 +60,7 @@ export default function AccountScreen() {
     return (
       <Screen>
         <AppText variant="title" accessibilityRole="header">
-          Conta
+          {t('account.title')}
         </AppText>
       </Screen>
     );
@@ -72,32 +70,32 @@ export default function AccountScreen() {
     return (
       <Screen>
         <AppText variant="title" accessibilityRole="header">
-          Conta
+          {t('account.title')}
         </AppText>
         <Card>
           <AppText variant="subheading">{auth.email}</AppText>
-          <Badge label={auth.tier === 'premium' ? 'Premium' : 'Conta gratuita'} tone={auth.tier === 'premium' ? 'positive' : 'primary'} />
+          <Badge label={t(auth.tier === 'premium' ? 'account.premium' : 'account.free')} tone={auth.tier === 'premium' ? 'positive' : 'primary'} />
           <AppText variant="small" tone="muted">
-            A tua watchlist está sincronizada com a conta.
+            {t('account.synced')}
           </AppText>
           <View style={{ alignSelf: 'flex-start', marginTop: space.sm }}>
-            <Button label="Sair" variant="secondary" onPress={() => run(async () => { await auth.signOut(); return null; }, () => router.replace('/'))} />
+            <Button label={t('account.signOut')} variant="secondary" onPress={() => run(async () => { await auth.signOut(); return null; }, () => router.replace('/'))} />
           </View>
         </Card>
 
         <Card>
-          <AppText variant="subheading">Apagar conta</AppText>
+          <AppText variant="subheading">{t('account.delete.title')}</AppText>
           <AppText variant="small" tone="muted">
-            Remove a tua conta e a tua watchlist de forma permanente. Não é possível desfazer.
+            {t('account.delete.body')}
           </AppText>
           {confirmDelete ? (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, marginTop: space.sm }}>
-              <Button label="Sim, apagar a minha conta" onPress={() => run(auth.deleteAccount, () => router.replace('/'))} />
-              <Button label="Cancelar" variant="secondary" onPress={() => setConfirmDelete(false)} />
+              <Button label={t('account.delete.confirm')} onPress={() => run(auth.deleteAccount, () => router.replace('/'))} />
+              <Button label={t('account.delete.cancel')} variant="secondary" onPress={() => setConfirmDelete(false)} />
             </View>
           ) : (
             <View style={{ alignSelf: 'flex-start', marginTop: space.sm }}>
-              <Button label="Apagar conta" variant="secondary" onPress={() => setConfirmDelete(true)} />
+              <Button label={t('account.delete.title')} variant="secondary" onPress={() => setConfirmDelete(true)} />
             </View>
           )}
         </Card>
@@ -113,34 +111,34 @@ export default function AccountScreen() {
   return (
     <Screen>
       <AppText variant="title" accessibilityRole="header">
-        Entrar ou criar conta
+        {t('login.title')}
       </AppText>
       <AppText tone="muted">
-        Podes usar o MarketLens sem registo. Com uma conta gratuita ganhas mais:
+        {t('login.intro')}
       </AppText>
       <View style={{ gap: space.xs }}>
         {BENEFITS.map((benefit) => (
-          <AppText key={benefit}>• {benefit}</AppText>
+          <AppText key={benefit}>• {t(benefit)}</AppText>
         ))}
       </View>
 
       <Card>
         {sent ? (
           <>
-            <AppText variant="subheading">Verifica o teu email</AppText>
+            <AppText variant="subheading">{t('login.sent.title')}</AppText>
             <AppText tone="muted">
-              Enviámos uma ligação de acesso para {email.trim()}. Abre-a neste dispositivo para entrar.
+              {t('login.sent.body', { email: email.trim() })}
             </AppText>
           </>
         ) : (
           <>
-            <AppText variant="subheading">Entrar com email</AppText>
+            <AppText variant="subheading">{t('login.email.title')}</AppText>
             <TextInput
               value={email}
               onChangeText={setEmail}
-              placeholder="o-teu@email.com"
+              placeholder={t('login.email.placeholder')}
               placeholderTextColor={colors.textMuted}
-              accessibilityLabel="Email"
+              accessibilityLabel={t('login.email.label')}
               autoCapitalize="none"
               autoCorrect={false}
               keyboardType="email-address"
@@ -158,20 +156,20 @@ export default function AccountScreen() {
             />
             <View style={{ alignSelf: 'flex-start' }}>
               <Button
-                label={busy ? 'A enviar…' : 'Enviar ligação de acesso'}
+                label={busy ? t('login.sending') : t('login.send')}
                 onPress={() => {
-                  if (!validEmail) return setError('Escreve um email válido.');
+                  if (!validEmail) return setError(t('login.invalidEmail'));
                   void run(() => auth.signInWithEmail(email), () => setSent(true));
                 }}
               />
             </View>
             {GOOGLE_ENABLED ? (
               <View style={{ alignSelf: 'flex-start' }}>
-                <Button label="Continuar com Google" variant="secondary" onPress={() => run(auth.signInWithGoogle)} />
+                <Button label={t('login.google')} variant="secondary" onPress={() => run(auth.signInWithGoogle)} />
               </View>
             ) : null}
             <AppText variant="small" tone="muted">
-              Sem palavra-passe: enviamos-te uma ligação para entrares. Ao continuares aceitas que guardemos o teu email e a tua watchlist.
+              {t('login.note')}
             </AppText>
           </>
         )}

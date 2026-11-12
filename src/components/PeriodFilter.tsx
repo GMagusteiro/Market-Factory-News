@@ -2,10 +2,11 @@ import { useRouter } from 'expo-router';
 import { TextInput, View } from 'react-native';
 
 import { useDataset } from '@/data';
+import { useI18n } from '@/i18n';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
 import { canUsePeriod } from '@/lib/access';
-import { PERIOD_OPTIONS, toDay, type PeriodKey } from '@/lib/period';
+import { PERIOD_KEYS, toDay, type PeriodKey } from '@/lib/period';
 import type { PeriodState } from '@/lib/usePeriod';
 import { useAuth } from '@/state/auth';
 
@@ -19,6 +20,7 @@ export function PeriodFilter({ period }: { period: PeriodState }) {
   const { colors } = useTheme();
   const { now } = useDataset();
   const router = useRouter();
+  const { t } = useI18n();
   const auth = useAuth();
   const { key, from, to, range, onChange } = period;
 
@@ -49,12 +51,16 @@ export function PeriodFilter({ period }: { period: PeriodState }) {
   return (
     <View style={{ gap: space.md }}>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
-        {PERIOD_OPTIONS.map((option) => (
+        {PERIOD_KEYS.map((key_) => (
           <Chip
-            key={option.key}
-            label={canUsePeriod(option.key, auth.tier, auth.enabled) ? option.label : `${option.label} · com conta`}
-            selected={key === option.key}
-            onPress={() => selectKey(option.key)}
+            key={key_}
+            label={
+              canUsePeriod(key_, auth.tier, auth.enabled)
+                ? t(`period.${key_}`)
+                : `${t(`period.${key_}`)} · ${t('period.lockedSuffix')}`
+            }
+            selected={key === key_}
+            onPress={() => selectKey(key_)}
           />
         ))}
       </View>
@@ -64,20 +70,20 @@ export function PeriodFilter({ period }: { period: PeriodState }) {
             <TextInput
               value={from}
               onChangeText={(text) => onChange(key, text, to)}
-              placeholder="AAAA-MM-DD"
+              placeholder={t('period.dateFormat')}
               placeholderTextColor={colors.textMuted}
-              accessibilityLabel="Data inicial"
+              accessibilityLabel={t('period.from')}
               maxLength={10}
               autoCorrect={false}
               style={inputStyle}
             />
-            <AppText tone="muted">até</AppText>
+            <AppText tone="muted">{t('period.until')}</AppText>
             <TextInput
               value={to}
               onChangeText={(text) => onChange(key, from, text)}
-              placeholder="AAAA-MM-DD"
+              placeholder={t('period.dateFormat')}
               placeholderTextColor={colors.textMuted}
-              accessibilityLabel="Data final"
+              accessibilityLabel={t('period.to')}
               maxLength={10}
               autoCorrect={false}
               style={inputStyle}
@@ -85,7 +91,7 @@ export function PeriodFilter({ period }: { period: PeriodState }) {
           </View>
           {range === null ? (
             <AppText variant="small" style={{ color: colors.danger }}>
-              Datas inválidas. Usa o formato AAAA-MM-DD, com a data inicial antes da final.
+              {t('period.invalid')}
             </AppText>
           ) : null}
         </View>

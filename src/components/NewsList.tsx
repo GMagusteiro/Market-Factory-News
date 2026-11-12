@@ -2,7 +2,8 @@ import { Linking, Pressable, View } from 'react-native';
 
 import { getAsset, getSource } from '@/data';
 import { space } from '@/design/tokens';
-import { ARTICLE_TYPE_LABEL, formatDateTime } from '@/lib/format';
+import { useI18n, useThemeName } from '@/i18n';
+import { formatDateTime } from '@/lib/format';
 import type { ArticleType, NewsEntry } from '@/lib/types';
 
 import { AppText } from './ui/AppText';
@@ -17,6 +18,8 @@ const TYPE_TONE: Record<ArticleType, BadgeTone> = {
 
 function NewsItem({ entry, showAsset }: { entry: NewsEntry; showAsset: boolean }) {
   const { article, relation, theme } = entry;
+  const { t, locale } = useI18n();
+  const themeName = useThemeName();
   const source = getSource(article.sourceId);
   const mentioned = showAsset
     ? article.assetSlugs.map(getAsset).filter((asset) => !!asset)
@@ -25,21 +28,21 @@ function NewsItem({ entry, showAsset }: { entry: NewsEntry; showAsset: boolean }
   return (
     <Pressable
       accessibilityRole="link"
-      accessibilityLabel={`${article.title}. Abre o artigo original.`}
+      accessibilityLabel={t('news.open', { title: article.title })}
       onPress={() => Linking.openURL(article.url)}>
       <Card>
         <AppText variant="subheading">{article.title}</AppText>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm }}>
-          <Badge label={ARTICLE_TYPE_LABEL[article.type]} tone={TYPE_TONE[article.type]} />
-          {relation === 'theme' && theme ? <Badge label={`Tema: ${theme.name}`} /> : null}
+          <Badge label={t(`news.type.${article.type}`)} tone={TYPE_TONE[article.type]} />
+          {relation === 'theme' && theme ? <Badge label={t('news.theme', { name: themeName(theme) })} /> : null}
           {mentioned.map((asset) => (asset ? <Badge key={asset.slug} label={asset.symbol} /> : null))}
           <AppText variant="small" tone="muted">
-            {source?.name ?? 'Fonte desconhecida'} · {formatDateTime(article.publishedAt)}
+            {source?.name ?? t('news.unknownSource')} · {formatDateTime(article.publishedAt, locale)}
           </AppText>
         </View>
         {relation === 'theme' ? (
           <AppText variant="small" tone="muted">
-            Não menciona o ativo diretamente: está ligada a ele pelo tema.
+            {t('news.themeNote')}
           </AppText>
         ) : null}
       </Card>

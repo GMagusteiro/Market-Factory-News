@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Keyboard, Pressable, TextInput, View } from 'react-native';
 
 import { useDataset } from '@/data';
+import { useI18n } from '@/i18n';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
 import { searchAssets } from '@/lib/search';
@@ -18,8 +19,9 @@ interface AssetPickerProps {
 /** Caixa de pesquisa com lista de sugestões: procura por símbolo, nome ou alias. */
 export function AssetPicker({
   onSelect,
-  placeholder = 'Pesquisar ativo: NVIDIA, EUR/USD, Apple…',
+  placeholder,
 }: AssetPickerProps) {
+  const { t } = useI18n();
   const { colors } = useTheme();
   const dataset = useDataset();
   const [query, setQuery] = useState('');
@@ -51,9 +53,9 @@ export function AssetPicker({
         onKeyPress={(event) => {
           if (event.nativeEvent.key === 'Escape') setOpen(false);
         }}
-        placeholder={placeholder}
+        placeholder={placeholder ?? t('picker.placeholder')}
         placeholderTextColor={colors.textMuted}
-        accessibilityLabel="Pesquisar ativo"
+        accessibilityLabel={t('picker.label')}
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="search"
@@ -86,7 +88,7 @@ export function AssetPicker({
           }}>
           {results.length === 0 ? (
             <AppText tone="muted" style={{ padding: space.md }}>
-              Sem resultados para “{query.trim()}”.
+              {t('picker.noResults', { q: query.trim() })}
             </AppText>
           ) : (
             results.map((asset) => (
@@ -109,7 +111,7 @@ export function AssetPicker({
                 <AppText tone="muted" style={{ flex: 1 }} numberOfLines={1}>
                   {asset.name}
                 </AppText>
-                <Badge label={asset.kind === 'forex' ? 'Forex' : 'Ação'} />
+                <Badge label={t(asset.kind === 'forex' ? 'asset.kind.forex' : 'asset.kind.stock')} />
               </Pressable>
             ))
           )}

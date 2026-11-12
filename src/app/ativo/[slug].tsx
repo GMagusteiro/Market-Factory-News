@@ -12,6 +12,8 @@ import { Screen } from '@/components/ui/Screen';
 import { Section } from '@/components/ui/Section';
 import { assets as localAssets, getAsset, useDataset } from '@/data';
 import { space } from '@/design/tokens';
+import { useI18n } from '@/i18n';
+import { joinList } from '@/lib/format';
 import { newsForAsset } from '@/lib/news';
 import { inRange } from '@/lib/period';
 import { usePeriod } from '@/lib/usePeriod';
@@ -37,6 +39,7 @@ export const generateMetadata: GenerateMetadataFunction = (_request, params) => 
 export default function AssetScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const router = useRouter();
+  const { t, locale } = useI18n();
   const period = usePeriod('7d');
   const watchlist = useWatchlist();
   const { calendarEvents, now } = useDataset();
@@ -45,9 +48,9 @@ export default function AssetScreen() {
   if (!asset) {
     return (
       <Screen>
-        <AppText variant="title">Ativo não encontrado</AppText>
+        <AppText variant="title">{t('asset.notFound')}</AppText>
         <Link href="/">
-          <AppText tone="primary">Voltar à pesquisa</AppText>
+          <AppText tone="primary">{t('asset.back')}</AppText>
         </Link>
       </Screen>
     );
@@ -86,33 +89,35 @@ export default function AssetScreen() {
             {asset.name}
           </AppText>
           <AppText tone="muted">
-            {asset.symbol} · {asset.kind === 'forex' ? 'Par forex' : 'Ação'}
+            {asset.symbol} · {t(asset.kind === 'forex' ? 'asset.kind.forexLong' : 'asset.kind.stock')}
           </AppText>
         </View>
         <Button
-          label={following ? 'A seguir' : 'Seguir'}
+          label={following ? t('asset.following') : t('asset.follow')}
           variant={following ? 'secondary' : 'primary'}
-          accessibilityLabel={following ? `Deixar de seguir ${asset.name}` : `Seguir ${asset.name}`}
+          accessibilityLabel={t(following ? 'asset.unfollowLabel' : 'asset.followLabel', { name: asset.name })}
           onPress={() => watchlist.toggle(asset.slug)}
         />
       </View>
 
-      <Section title="Notícias" subtitle={range ? `${assetNews.length} no período escolhido` : undefined}>
+      <Section
+        title={t('asset.news.title')}
+        subtitle={range ? t('asset.news.count', { n: assetNews.length }) : undefined}>
         <PeriodFilter period={period} />
         <NewsList
           entries={assetNews}
           emptyText={
             range
-              ? 'Sem notícias para este ativo no período escolhido. Experimenta um período mais longo.'
-              : 'Corrige as datas para ver as notícias.'
+              ? t('asset.news.empty')
+              : t('asset.news.fixDates')
           }
         />
       </Section>
 
       <Section
-        title="Eventos macro relacionados"
-        subtitle={`Eventos que afetam ${asset.currencies.join(' e ')}, no período e nos próximos 7 dias`}>
-        <EventList events={relatedEvents} emptyText="Sem eventos relacionados neste período." />
+        title={t('asset.events.title')}
+        subtitle={t('asset.events.subtitle', { cur: joinList(asset.currencies, locale) })}>
+        <EventList events={relatedEvents} emptyText={t('asset.events.empty')} />
       </Section>
     </Screen>
   );

@@ -1,7 +1,8 @@
 import { View } from 'react-native';
 
 import { space } from '@/design/tokens';
-import { dayKey, formatDay, formatTime, IMPACT_LABEL } from '@/lib/format';
+import { useI18n } from '@/i18n';
+import { dayKey, formatDay, formatTime } from '@/lib/format';
 import type { CalendarEvent, Impact } from '@/lib/types';
 
 import { AppText } from './ui/AppText';
@@ -17,10 +18,11 @@ const IMPACT_TONE: Record<Impact, BadgeTone> = {
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 function EventRow({ event }: { event: CalendarEvent }) {
+  const { t, locale } = useI18n();
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.md }}>
       <AppText variant="subheading" style={{ width: 52 }}>
-        {formatTime(event.datetime)}
+        {formatTime(event.datetime, locale)}
       </AppText>
       <View style={{ flex: 1, gap: space.xs }}>
         <AppText>{event.title}</AppText>
@@ -30,7 +32,7 @@ function EventRow({ event }: { event: CalendarEvent }) {
       </View>
       <View style={{ alignItems: 'flex-end', gap: space.xs }}>
         <Badge label={event.currency} tone="primary" />
-        <Badge label={IMPACT_LABEL[event.impact]} tone={IMPACT_TONE[event.impact]} />
+        <Badge label={t(`event.impact.${event.impact}`)} tone={IMPACT_TONE[event.impact]} />
       </View>
     </View>
   );
@@ -44,6 +46,7 @@ interface EventListProps {
 
 /** Eventos do calendário económico agrupados por dia. */
 export function EventList({ events, emptyText }: EventListProps) {
+  const { locale } = useI18n();
   if (events.length === 0) {
     return (
       <Card>
@@ -59,7 +62,7 @@ export function EventList({ events, emptyText }: EventListProps) {
     if (last && last.key === key) {
       last.events.push(event);
     } else {
-      groups.push({ key, label: capitalize(formatDay(event.datetime)), events: [event] });
+      groups.push({ key, label: capitalize(formatDay(event.datetime, locale)), events: [event] });
     }
   }
 

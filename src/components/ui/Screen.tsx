@@ -3,12 +3,14 @@ import type { ReactNode } from 'react';
 
 import { layout, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
+import { useI18n } from '@/i18n';
 
 import { AppText } from './AppText';
 
 /** Contentor de página: centrado, com largura máxima e o aviso legal no fim. */
 export function Screen({ children }: { children: ReactNode }) {
   const { colors } = useTheme();
+  const { t } = useI18n();
 
   return (
     <ScrollView
@@ -18,8 +20,7 @@ export function Screen({ children }: { children: ReactNode }) {
       <View style={{ width: '100%', maxWidth: layout.maxWidth, gap: space.xl }}>
         {children}
         <AppText variant="small" tone="muted" style={{ textAlign: 'center' }}>
-          Conteúdo meramente informativo. Não constitui aconselhamento financeiro nem recomendação
-          de investimento.
+          {t('legal.disclaimer')}
         </AppText>
       </View>
     </ScrollView>

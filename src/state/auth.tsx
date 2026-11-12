@@ -82,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithEmail = useCallback(async (email: string) => {
     const supabase = getSupabase();
-    if (!supabase) return 'O registo não está disponível neste momento.';
+    if (!supabase) return 'unavailable';
     const { error } = await supabase.auth.signInWithOtp({
       email: email.trim(),
       options: { emailRedirectTo: redirectUrl() },
@@ -92,7 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = useCallback(async () => {
     const supabase = getSupabase();
-    if (!supabase) return 'O registo não está disponível neste momento.';
+    if (!supabase) return 'unavailable';
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: redirectUrl() },
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const deleteAccount = useCallback(async () => {
     const supabase = getSupabase();
-    if (!supabase) return 'O registo não está disponível neste momento.';
+    if (!supabase) return 'unavailable';
     const { error } = await supabase.rpc('delete_my_account');
     if (error) return error.message;
     await supabase.auth.signOut({ scope: 'local' });

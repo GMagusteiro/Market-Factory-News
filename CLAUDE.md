@@ -85,3 +85,10 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Página `/conta`: entrar por ligação mágica (Google só se `EXPO_PUBLIC_GOOGLE_LOGIN=1` e o fornecedor estiver configurado no Supabase), sair, apagar conta.
 - Testes: `npm test` (inclui `supabase/tests/acesso.test.ts`, que corre as migrações num Postgres local). Browser: `e2e/browser.py` (build SEM Supabase: `EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_KEY= npm run export:web`) e `e2e/visitante.py` (build COM Supabase). Ambos esperam `npx serve dist -l 3000`.
 - Por configurar no painel do Supabase: Authentication > URL Configuration (Site URL e Redirect URLs com o endereço publicado). O servidor de email de origem do Supabase tem limite baixo de envios; para produção usar SMTP próprio (Resend).
+
+## Idiomas (pt, en, es)
+
+- Textos em `src/i18n/messages.ts` (português define as chaves; en e es têm de as ter todas, o TypeScript e `src/i18n/i18n.test.ts` verificam). Usar `useI18n()` (`t`, `locale`) em vez de texto fixo; datas via `src/lib/format.ts` com o `locale`.
+- Português é o idioma de arranque (igual ao HTML estático); depois usa o guardado ou o do browser. Seletor PT/EN/ES no menu. `document.documentElement.lang` acompanha.
+- Fora do âmbito por agora: títulos de notícias e eventos do calendário ficam no idioma de origem; `generateMetadata` (título/descrição no HTML estático) fica em português; sem endereços por idioma (`/en`).
+- Testes de browser: `e2e/idiomas.py` (build sem Supabase).

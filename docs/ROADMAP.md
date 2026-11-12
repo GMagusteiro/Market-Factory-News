@@ -60,3 +60,8 @@ Só começa quando houver utilizadores que voltam (ver métricas no PRD).
 - Conta Apple Developer (99 $/ano) e build na nuvem com EAS Build (não precisa de Mac)
 - Requisitos da Apple: Iniciar sessão com a Apple se houver outro login social, apagar conta in-app com revogação do token, política de privacidade e termos, restaurar compras, nada de "em breve", permissões com justificação
 - Superwall + StoreKit para subscrições na app; TestFlight; App Store; correções rápidas com EAS Update
+
+## Ideias futuras (sem fase atribuída)
+
+- **Notificações de notícias da watchlist** (ideia do Gonçalo): avisar o utilizador quando há notícias relevantes dos ativos que segue. Inclui ações e, se a cripto entrar no âmbito, criptomoedas (fora da V1). Pede push (app, Fase 6) e/ou email (Resend), preferências por ativo e limite de envios para não incomodar. Ligar ao nível de acesso (por exemplo, conta gratuita com resumo diário, premium em tempo real).
+- **Idiomas:** interface em português, inglês e espanhol (feito com seletor). Endereços por idioma (`/en`, `/es`) para SEO e tradução automática de títulos de notícias ficam por decidir.

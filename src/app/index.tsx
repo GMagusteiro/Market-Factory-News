@@ -12,6 +12,7 @@ import { Section } from '@/components/ui/Section';
 import { getAsset, useDataset } from '@/data';
 import { space, typography } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
+import { useI18n } from '@/i18n';
 import { topStories } from '@/lib/relevance';
 
 const POPULAR_SLUGS = ['nvda', 'aapl', 'msft', 'tsla', 'eur-usd', 'usd-jpy'];
@@ -28,6 +29,7 @@ export function generateMetadata(): Metadata {
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { t } = useI18n();
   const { assets, calendarEvents, now } = useDataset();
 
   const goToAsset = (slug: string) =>
@@ -46,27 +48,26 @@ export default function HomeScreen() {
     <Screen>
       <View style={{ gap: space.md }}>
         <AppText variant="title" accessibilityRole="header">
-          Notícias de ações e forex, por ativo e período
+          {t('home.title')}
         </AppText>
         <AppText tone="muted">
-          Escolhe um ativo, define o período e vê só o que importa, com a fonte e o tipo de cada
-          artigo.
+          {t('home.intro')}
         </AppText>
       </View>
 
       <AssetPicker onSelect={(asset) => goToAsset(asset.slug)} />
 
       <Section
-        title="Em destaque"
-        subtitle="As histórias mais relevantes das últimas 24 horas, confirmadas por várias fontes">
+        title={t('home.highlights.title')}
+        subtitle={t('home.highlights.subtitle')}>
         <StoryList
           stories={highlights}
           onOpenAsset={goToAsset}
-          emptyText="Sem histórias em destaque nas últimas 24 horas."
+          emptyText={t('home.highlights.empty')}
         />
       </Section>
 
-      <Section title="Populares" subtitle={`${assets.length} ativos disponíveis nesta fase`}>
+      <Section title={t('home.popular.title')} subtitle={t('home.popular.subtitle', { n: assets.length })}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
           {POPULAR_SLUGS.map((slug) => {
             const asset = getAsset(slug);
@@ -78,14 +79,14 @@ export default function HomeScreen() {
       </Section>
 
       <Section
-        title="Próximos eventos macro"
-        subtitle="Nos próximos 7 dias"
+        title={t('home.events.title')}
+        subtitle={t('home.events.subtitle')}
         action={
           <Link href="/calendario" style={[typography.small, { color: colors.primary, fontWeight: '600' }]}>
-            Ver calendário
+            {t('home.events.link')}
           </Link>
         }>
-        <EventList events={upcoming} emptyText="Sem eventos nos próximos 7 dias." />
+        <EventList events={upcoming} emptyText={t('home.events.empty')} />
       </Section>
     </Screen>
   );
