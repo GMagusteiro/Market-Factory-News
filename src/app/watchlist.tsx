@@ -9,9 +9,9 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { Section } from '@/components/ui/Section';
-import { articles, getAsset } from '@/data';
+import { getAsset } from '@/data';
 import { space } from '@/design/tokens';
-import { inRange } from '@/lib/period';
+import { newsForAssets } from '@/lib/news';
 import type { Asset } from '@/lib/types';
 import { usePeriod } from '@/lib/usePeriod';
 import { useWatchlist } from '@/state/watchlist';
@@ -27,11 +27,7 @@ export default function WatchlistScreen() {
 
   const followed = slugs.map(getAsset).filter((asset): asset is Asset => !!asset);
   const { range } = period;
-  const feed = range
-    ? articles
-        .filter((article) => slugs.includes(article.assetSlug) && inRange(article.publishedAt, range))
-        .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-    : [];
+  const feed = newsForAssets(followed, range);
 
   const goToAsset = (slug: string) => router.push({ pathname: '/ativo/[slug]', params: { slug } });
 
@@ -74,7 +70,7 @@ export default function WatchlistScreen() {
           <Section title="Feed" subtitle={range ? `${feed.length} notícia(s) no período escolhido` : undefined}>
             <PeriodFilter period={period} />
             <NewsList
-              articles={feed}
+              entries={feed}
               showAsset
               emptyText={
                 range

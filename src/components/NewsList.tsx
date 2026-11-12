@@ -3,7 +3,7 @@ import { Linking, Pressable, View } from 'react-native';
 import { getAsset, getSource } from '@/data';
 import { space } from '@/design/tokens';
 import { ARTICLE_TYPE_LABEL, formatDateTime } from '@/lib/format';
-import type { Article, ArticleType } from '@/lib/types';
+import type { ArticleType, NewsEntry } from '@/lib/types';
 
 import { AppText } from './ui/AppText';
 import { Badge, type BadgeTone } from './ui/Badge';
@@ -15,9 +15,12 @@ const TYPE_TONE: Record<ArticleType, BadgeTone> = {
   official: 'positive',
 };
 
-function NewsItem({ article, showAsset }: { article: Article; showAsset: boolean }) {
+function NewsItem({ entry, showAsset }: { entry: NewsEntry; showAsset: boolean }) {
+  const { article, relation, theme } = entry;
   const source = getSource(article.sourceId);
-  const asset = getAsset(article.assetSlug);
+  const mentioned = showAsset
+    ? article.assetSlugs.map(getAsset).filter((asset) => !!asset)
+    : [];
 
   return (
     <Pressable
@@ -28,25 +31,32 @@ function NewsItem({ article, showAsset }: { article: Article; showAsset: boolean
         <AppText variant="subheading">{article.title}</AppText>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: space.sm }}>
           <Badge label={ARTICLE_TYPE_LABEL[article.type]} tone={TYPE_TONE[article.type]} />
-          {showAsset && asset ? <Badge label={asset.symbol} /> : null}
+          {relation === 'theme' && theme ? <Badge label={`Tema: ${theme.name}`} /> : null}
+          {mentioned.map((asset) => (asset ? <Badge key={asset.slug} label={asset.symbol} /> : null))}
           <AppText variant="small" tone="muted">
             {source?.name ?? 'Fonte desconhecida'} · {formatDateTime(article.publishedAt)}
           </AppText>
         </View>
+        {relation === 'theme' ? (
+          <AppText variant="small" tone="muted">
+            Não menciona o ativo diretamente: está ligada a ele pelo tema.
+          </AppText>
+        ) : null}
       </Card>
     </Pressable>
   );
 }
 
 interface NewsListProps {
-  /** Já filtrados e ordenados. */
-  articles: Article[];
+  /** Já filtradas e ordenadas. */
+  entries: NewsEntry[];
+  /** Mostra os ativos mencionados em cada notícia (útil na watchlist). */
   showAsset?: boolean;
   emptyText: string;
 }
 
-export function NewsList({ articles, showAsset = false, emptyText }: NewsListProps) {
-  if (articles.length === 0) {
+export function NewsList({ entries, showAsset = false, emptyText }: NewsListProps) {
+  if (entries.length === 0) {
     return (
       <Card>
         <AppText tone="muted">{emptyText}</AppText>
@@ -56,8 +66,8 @@ export function NewsList({ articles, showAsset = false, emptyText }: NewsListPro
 
   return (
     <View style={{ gap: space.md }}>
-      {articles.map((article) => (
-        <NewsItem key={article.id} article={article} showAsset={showAsset} />
+      {entries.map((entry) => (
+        <NewsItem key={entry.article.id} entry={entry} showAsset={showAsset} />
       ))}
     </View>
   );

@@ -10,8 +10,9 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { Section } from '@/components/ui/Section';
-import { articles, assets, calendarEvents, getAsset, SAMPLE_NOW } from '@/data';
+import { assets, calendarEvents, getAsset, SAMPLE_NOW } from '@/data';
 import { space } from '@/design/tokens';
+import { newsForAsset } from '@/lib/news';
 import { inRange } from '@/lib/period';
 import { usePeriod } from '@/lib/usePeriod';
 import { useWatchlist } from '@/state/watchlist';
@@ -54,11 +55,8 @@ export default function AssetScreen() {
   const { range } = period;
   const following = watchlist.has(asset.slug);
 
-  const assetNews = range
-    ? articles
-        .filter((article) => article.assetSlug === asset.slug && inRange(article.publishedAt, range))
-        .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-    : [];
+  // Menções diretas e notícias ligadas ao ativo pelos seus temas.
+  const assetNews = newsForAsset(asset, range);
 
   // Eventos das moedas do ativo, no período escolhido e nos próximos 7 dias.
   const upcomingLimit = SAMPLE_NOW.getTime() + WEEK;
@@ -101,7 +99,7 @@ export default function AssetScreen() {
       <Section title="Notícias" subtitle={range ? `${assetNews.length} no período escolhido` : undefined}>
         <PeriodFilter period={period} />
         <NewsList
-          articles={assetNews}
+          entries={assetNews}
           emptyText={
             range
               ? 'Sem notícias para este ativo no período escolhido. Experimenta um período mais longo.'

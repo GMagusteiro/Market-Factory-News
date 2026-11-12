@@ -4,6 +4,7 @@ import { View } from 'react-native';
 
 import { AssetPicker } from '@/components/AssetPicker';
 import { EventList } from '@/components/EventList';
+import { StoryList } from '@/components/StoryList';
 import { AppText } from '@/components/ui/AppText';
 import { Chip } from '@/components/ui/Chip';
 import { Screen } from '@/components/ui/Screen';
@@ -11,6 +12,7 @@ import { Section } from '@/components/ui/Section';
 import { assets, calendarEvents, getAsset, SAMPLE_NOW } from '@/data';
 import { space, typography } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
+import { topStories } from '@/lib/relevance';
 
 const POPULAR_SLUGS = ['nvda', 'aapl', 'msft', 'tsla', 'eur-usd', 'usd-jpy'];
 const WEEK = 7 * 24 * 60 * 60 * 1000;
@@ -29,6 +31,8 @@ export default function HomeScreen() {
 
   const goToAsset = (slug: string) =>
     router.push({ pathname: '/ativo/[slug]', params: { slug } });
+
+  const highlights = topStories(SAMPLE_NOW);
 
   const upcoming = calendarEvents
     .filter((event) => {
@@ -50,6 +54,16 @@ export default function HomeScreen() {
       </View>
 
       <AssetPicker onSelect={(asset) => goToAsset(asset.slug)} />
+
+      <Section
+        title="Em destaque"
+        subtitle="As histórias mais relevantes das últimas 24 horas, confirmadas por várias fontes">
+        <StoryList
+          stories={highlights}
+          onOpenAsset={goToAsset}
+          emptyText="Sem histórias em destaque nas últimas 24 horas."
+        />
+      </Section>
 
       <Section title="Populares" subtitle={`${assets.length} ativos disponíveis nesta fase`}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
