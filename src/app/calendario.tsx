@@ -6,7 +6,7 @@ import { EventList } from '@/components/EventList';
 import { AppText } from '@/components/ui/AppText';
 import { Chip } from '@/components/ui/Chip';
 import { Screen } from '@/components/ui/Screen';
-import { calendarEvents, SAMPLE_NOW } from '@/data';
+import { useDataset } from '@/data';
 import { space } from '@/design/tokens';
 import type { Impact } from '@/lib/types';
 
@@ -38,7 +38,8 @@ export default function CalendarScreen() {
   const [view, setView] = useState<View_>('upcoming');
   const [impact, setImpact] = useState<ImpactFilter>('all');
 
-  const now = SAMPLE_NOW.getTime();
+  const { calendarEvents, now: nowDate } = useDataset();
+  const now = nowDate.getTime();
   const events = calendarEvents.filter((event) => {
     const time = Date.parse(event.datetime);
     const inView = view === 'upcoming' ? time >= now && time <= now + 14 * DAY : time < now && time >= now - 14 * DAY;

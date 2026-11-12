@@ -1,4 +1,4 @@
-import { assets } from '@/data';
+import { getDataset } from '@/data';
 
 import type { Asset } from './types';
 
@@ -28,10 +28,10 @@ function score(asset: Asset, query: string): number {
 }
 
 /** Pesquisa ativos por símbolo, nome ou alias. Devolve os melhores resultados primeiro. */
-export function searchAssets(rawQuery: string, limit = 8): Asset[] {
+export function searchAssets(rawQuery: string, limit = 8, list: Asset[] = getDataset().assets): Asset[] {
   const query = normalize(rawQuery);
   if (!query) return [];
-  return assets
+  return list
     .map((asset) => ({ asset, points: score(asset, query) }))
     .filter((item) => item.points > 0)
     .sort((a, b) => b.points - a.points || a.asset.name.localeCompare(b.asset.name))

@@ -1,4 +1,4 @@
-import { articles, getTheme } from '@/data';
+import { getDataset, getTheme } from '@/data';
 
 import { inRange, type DateRange } from './period';
 import type { Asset, NewsEntry } from './types';
@@ -17,7 +17,7 @@ export function newsForAssets(list: Asset[], range: DateRange | null): NewsEntry
   const themeSlugs = new Set(list.flatMap((asset) => asset.themes));
   const entries: NewsEntry[] = [];
 
-  for (const article of articles) {
+  for (const article of getDataset().articles) {
     if (!inRange(article.publishedAt, range)) continue;
 
     if (article.assetSlugs.some((slug) => slugs.has(slug))) {

@@ -9,7 +9,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Chip } from '@/components/ui/Chip';
 import { Screen } from '@/components/ui/Screen';
 import { Section } from '@/components/ui/Section';
-import { assets, calendarEvents, getAsset, SAMPLE_NOW } from '@/data';
+import { getAsset, useDataset } from '@/data';
 import { space, typography } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
 import { topStories } from '@/lib/relevance';
@@ -28,16 +28,17 @@ export function generateMetadata(): Metadata {
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useTheme();
+  const { assets, calendarEvents, now } = useDataset();
 
   const goToAsset = (slug: string) =>
     router.push({ pathname: '/ativo/[slug]', params: { slug } });
 
-  const highlights = topStories(SAMPLE_NOW);
+  const highlights = topStories(now);
 
   const upcoming = calendarEvents
     .filter((event) => {
       const time = Date.parse(event.datetime);
-      return time >= SAMPLE_NOW.getTime() && time <= SAMPLE_NOW.getTime() + WEEK;
+      return time >= now.getTime() && time <= now.getTime() + WEEK;
     })
     .slice(0, 5);
 

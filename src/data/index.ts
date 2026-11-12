@@ -1,3 +1,5 @@
+import { useSyncExternalStore } from 'react';
+
 import type { Article, ArticleType, Asset, CalendarEvent, Source, Theme } from '@/lib/types';
 
 import assetsJson from './assets.json';
@@ -22,9 +24,47 @@ export const calendarEvents = (calendarJson as CalendarEvent[])
   .slice()
   .sort((a, b) => Date.parse(a.datetime) - Date.parse(b.datetime));
 
-export const getAsset = (slug: string) => assets.find((asset) => asset.slug === slug);
-export const getSource = (id: string) => sources.find((source) => source.id === id);
-export const getTheme = (slug: string) => themes.find((theme) => theme.slug === slug);
+/**
+ * Conjunto de dados em uso. Começa com os dados de exemplo locais; se o Supabase
+ * estiver configurado e responder, é substituído pelos dados de lá (ver sync.ts).
+ */
+export interface Dataset {
+  assets: Asset[];
+  sources: Source[];
+  themes: Theme[];
+  articles: Article[];
+  calendarEvents: CalendarEvent[];
+  /** "Agora" usado nos filtros: fixo nos dados de exemplo, a hora real nos reais. */
+  now: Date;
+  /** true se o conteúdo é fictício (mostra o aviso de dados de exemplo). */
+  sample: boolean;
+}
+
+let current: Dataset;
+const listeners = new Set<() => void>();
+
+export const getDataset = () => current;
+
+export function setDataset(next: Dataset) {
+  current = next;
+  listeners.forEach((listener) => listener());
+}
+
+/** Subscreve o conjunto de dados atual. Na hidratação usa sempre os dados locais. */
+export function useDataset(): Dataset {
+  return useSyncExternalStore(
+    (listener) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    getDataset,
+    () => localDataset,
+  );
+}
+
+export const getAsset = (slug: string) => current.assets.find((asset) => asset.slug === slug);
+export const getSource = (id: string) => current.sources.find((source) => source.id === id);
+export const getTheme = (slug: string) => current.themes.find((theme) => theme.slug === slug);
 
 const hoursBefore = (hours: number) =>
   new Date(SAMPLE_NOW.getTime() - hours * 3_600_000).toISOString();
@@ -156,3 +196,14 @@ function buildStoryArticles(): Article[] {
 }
 
 export const articles: Article[] = [...buildAssetArticles(), ...buildStoryArticles()];
+
+export const localDataset: Dataset = {
+  assets,
+  sources,
+  themes,
+  articles,
+  calendarEvents,
+  now: SAMPLE_NOW,
+  sample: true,
+};
+current = localDataset;

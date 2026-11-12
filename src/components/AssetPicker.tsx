@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Keyboard, Pressable, TextInput, View } from 'react-native';
 
+import { useDataset } from '@/data';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
 import { searchAssets } from '@/lib/search';
@@ -20,9 +21,10 @@ export function AssetPicker({
   placeholder = 'Pesquisar ativo: NVIDIA, EUR/USD, Apple…',
 }: AssetPickerProps) {
   const { colors } = useTheme();
+  const dataset = useDataset();
   const [query, setQuery] = useState('');
   const [open, setOpen] = useState(false);
-  const results = useMemo(() => searchAssets(query), [query]);
+  const results = useMemo(() => searchAssets(query, 8, dataset.assets), [query, dataset.assets]);
   const showList = open && query.trim().length > 0;
 
   function select(asset: Asset) {

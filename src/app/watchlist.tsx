@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { Section } from '@/components/ui/Section';
-import { getAsset } from '@/data';
+import { getAsset, useDataset } from '@/data';
 import { space } from '@/design/tokens';
 import { newsForAssets } from '@/lib/news';
 import type { Asset } from '@/lib/types';
@@ -24,6 +24,7 @@ export default function WatchlistScreen() {
   const router = useRouter();
   const period = usePeriod('7d');
   const { slugs, ready, toggle } = useWatchlist();
+  useDataset(); // volta a desenhar quando os dados do Supabase chegam
 
   const followed = slugs.map(getAsset).filter((asset): asset is Asset => !!asset);
   const { range } = period;

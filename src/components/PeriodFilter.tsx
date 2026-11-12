@@ -1,6 +1,6 @@
 import { TextInput, View } from 'react-native';
 
-import { SAMPLE_NOW } from '@/data';
+import { useDataset } from '@/data';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
 import { PERIOD_OPTIONS, toDay, type PeriodKey } from '@/lib/period';
@@ -14,11 +14,12 @@ const WEEK = 7 * 24 * 60 * 60 * 1000;
 /** Escolha do período: 24h, 7 dias, 30 dias ou datas personalizadas (AAAA-MM-DD). */
 export function PeriodFilter({ period }: { period: PeriodState }) {
   const { colors } = useTheme();
+  const { now } = useDataset();
   const { key, from, to, range, onChange } = period;
 
   function selectKey(next: PeriodKey) {
     if (next === 'custom' && (!from || !to)) {
-      onChange(next, toDay(new Date(SAMPLE_NOW.getTime() - WEEK)), toDay(SAMPLE_NOW));
+      onChange(next, toDay(new Date(now.getTime() - WEEK)), toDay(now));
     } else {
       onChange(next, from, to);
     }

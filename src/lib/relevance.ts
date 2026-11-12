@@ -1,4 +1,4 @@
-import { articles, assets, getAsset, getSource, getTheme } from '@/data';
+import { getAsset, getDataset, getSource, getTheme } from '@/data';
 
 import type { Article, Asset, Relation, Story, Theme } from './types';
 
@@ -56,7 +56,7 @@ export function affectedAssets(
   }
 
   const themeSlugs = new Set(themeList.map((theme) => theme.slug));
-  for (const asset of assets) {
+  for (const asset of getDataset().assets) {
     if (!seen.has(asset.slug) && asset.themes.some((slug) => themeSlugs.has(slug))) {
       seen.add(asset.slug);
       result.push({ asset, relation: 'theme' });
@@ -67,7 +67,7 @@ export function affectedAssets(
 }
 
 /** Agrupa artigos por história e pontua cada uma. Mais relevantes primeiro. */
-export function buildStories(now: Date, pool: Article[] = articles): Story[] {
+export function buildStories(now: Date, pool: Article[] = getDataset().articles): Story[] {
   const groups = new Map<string, Article[]>();
   for (const article of pool) {
     const list = groups.get(article.storyId) ?? [];

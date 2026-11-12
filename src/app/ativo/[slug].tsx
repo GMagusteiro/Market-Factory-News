@@ -10,7 +10,7 @@ import { AppText } from '@/components/ui/AppText';
 import { Button } from '@/components/ui/Button';
 import { Screen } from '@/components/ui/Screen';
 import { Section } from '@/components/ui/Section';
-import { assets, calendarEvents, getAsset, SAMPLE_NOW } from '@/data';
+import { assets as localAssets, getAsset, useDataset } from '@/data';
 import { space } from '@/design/tokens';
 import { newsForAsset } from '@/lib/news';
 import { inRange } from '@/lib/period';
@@ -21,7 +21,7 @@ const WEEK = 7 * 24 * 60 * 60 * 1000;
 
 /** Gera uma página HTML estática por ativo (bom para SEO). */
 export async function generateStaticParams(): Promise<Record<string, string>[]> {
-  return assets.map((asset) => ({ slug: asset.slug }));
+  return localAssets.map((asset) => ({ slug: asset.slug }));
 }
 
 /** Título e descrição próprios de cada ativo, escritos no HTML estático. */
@@ -39,6 +39,7 @@ export default function AssetScreen() {
   const router = useRouter();
   const period = usePeriod('7d');
   const watchlist = useWatchlist();
+  const { calendarEvents, now } = useDataset();
   const asset = getAsset(slug ?? '');
 
   if (!asset) {
@@ -59,12 +60,12 @@ export default function AssetScreen() {
   const assetNews = newsForAsset(asset, range);
 
   // Eventos das moedas do ativo, no período escolhido e nos próximos 7 dias.
-  const upcomingLimit = SAMPLE_NOW.getTime() + WEEK;
+  const upcomingLimit = now.getTime() + WEEK;
   const relatedEvents = calendarEvents.filter((event) => {
     if (!asset.currencies.includes(event.currency)) return false;
     const time = Date.parse(event.datetime);
     const inPeriod = range ? inRange(event.datetime, range) : false;
-    const upcoming = time > SAMPLE_NOW.getTime() && time <= upcomingLimit;
+    const upcoming = time > now.getTime() && time <= upcomingLimit;
     return inPeriod || upcoming;
   });
 
