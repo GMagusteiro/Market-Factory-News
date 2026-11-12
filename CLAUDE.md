@@ -2,7 +2,7 @@
 
 Site de notícias de ações e forex por ativo e período (web primeiro, app iOS mais tarde), com calendário económico e watchlist. Documentos: `docs/PRD.md` (produto) e `docs/ROADMAP.md` (fases).
 
-Estado atual: **Fase 1 concluída. Fase 2 em curso**: a relevância por temas (F5) já funciona com dados de exemplo locais, 18 testes de lógica e 31 verificações no browser. Falta na Fase 2: Supabase (tabelas com RLS, conta, recolha de notícias por Edge Function, watchlist sincronizada, apagar conta) e a fonte do calendário. Bloqueado à espera de: projeto Supabase do Gonçalo (URL e chave pública). Atualizar esta secção no fim de cada fase.
+Estado atual: **Fase 1 concluída. Fase 2 em curso**: a relevância por temas (F5) já funciona com dados de exemplo locais, 18 testes de lógica e 31 verificações no browser. Falta na Fase 2: Supabase (tabelas com RLS, conta, recolha de notícias por Edge Function, watchlist sincronizada, apagar conta) e a fonte do calendário. Cliente Supabase ligado (`src/lib/supabase.ts`, variáveis `EXPO_PUBLIC_SUPABASE_URL/KEY` em `.env`, fallback para dados locais) e esquema em `supabase/migrations/0001_init.sql`. O sandbox não alcança supabase.co: o Gonçalo tem de correr o SQL no painel e a ligação só se testa no browser dele. Atualizar esta secção no fim de cada fase.
 
 ## Como trabalhamos
 
