@@ -28,11 +28,9 @@ Objetivo: abrir a app, escolher um ativo, escolher um período e ver notícias. 
 - A app deixa de usar JSON local e lê do Supabase; watchlist sincronizada
 - Apagar conta dentro da app (incluindo revogar token da Apple)
 
-## Fase 3 — Onboarding, paywall e analytics (pronta para TestFlight)
+## Fase 3 — Onboarding e analytics (pronta para TestFlight)
 
-- Onboarding completo (fluxo do PRD, secção 6)
-- Superwall + compras na app (StoreKit), paywall no fim do onboarding, restaurar compras
-- Limites do plano gratuito aplicados
+- Onboarding completo (fluxo do PRD, secção 6), sem paywall
 - PostHog com os eventos do funil; Sentry para erros
 - Resend: email de boas-vindas e de confirmação de eliminação de conta, via Edge Function
 - Política de privacidade e termos (páginas e ligações na app)
@@ -45,3 +43,12 @@ Objetivo: abrir a app, escolher um ativo, escolher um período e ver notícias. 
 - Revisão da lista de requisitos da Apple (login, apagar conta, privacidade, restaurar compras, sem "em breve")
 - Metadados, capturas de ecrã, descrição
 - Submissão; correções rápidas com EAS Update
+
+## Fase 5 (depois do lançamento) — Monetização
+
+Só começa quando houver utilizadores que voltam (ver métricas no PRD).
+
+- Superwall + compras na app (StoreKit), paywall entre o sign-in e o ecrã principal, restaurar compras
+- Limites do plano gratuito e ponto único de verificação de permissões
+- Eventos `paywall_viewed` e `subscribed`
+- Alternativa ou complemento: publicidade (pedido de consentimento de rastreamento, declaração de privacidade atualizada)

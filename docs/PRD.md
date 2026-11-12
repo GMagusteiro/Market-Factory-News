@@ -1,6 +1,6 @@
 # PRD — MarketLens (nome de trabalho)
 
-Estado: **rascunho v0.1**. A secção de monetização é uma proposta e aguarda aprovação.
+Estado: **rascunho v0.2**. Monetização adiada: primeiro construímos valor e fluxo de utilizadores (ver secção 7).
 
 ## 1. Problema
 
@@ -29,10 +29,11 @@ Escolhes um ativo (ex.: NVIDIA, EUR/USD), escolhes um período, e vês só as no
 | F3 | **Calendário económico** | Eventos macro com data/hora, moeda/país e impacto (baixo/médio/alto), com ligação aos ativos afetados. |
 | F4 | **Etiqueta de fonte e tipo** | Cada artigo mostra a fonte e o tipo: notícia, opinião ou comunicado oficial. |
 
-Infraestrutura mínima que as funcionalidades exigem: login com Apple, eliminar conta, política de privacidade e termos, restaurar compras, aviso de que o conteúdo não é aconselhamento financeiro.
+Infraestrutura mínima que as funcionalidades exigem: login com Apple, eliminar conta, política de privacidade e termos, aviso de que o conteúdo não é aconselhamento financeiro. Na V1 tudo é gratuito e sem limites.
 
 ## 5. Fora da V1
 
+- Paywall, subscrições e publicidade (adiados, ver secção 7)
 - Alertas e notificações push
 - Resumos com IA (candidato natural para uma versão 2, via Edge Function)
 - Android e web
@@ -51,25 +52,25 @@ Idioma da interface: português europeu. Conteúdo: sobretudo inglês, com fonte
 2. **Proposta de valor** (2 ecrãs curtos): "Todas as notícias de um ativo num só sítio" e "Fontes que podes verificar".
 3. **Mercados de interesse**: ações, forex ou ambos.
 4. **Escolher ativos**: pelo menos 3 para a watchlist inicial (sugestões populares + pesquisa). Mostra logo uma pré-visualização com notícias reais do primeiro ativo.
-5. **Iniciar sessão com a Apple**: guarda a watchlist e liga a subscrição à conta.
-6. **Paywall (Superwall)**: apresenta o plano Pro, com botão de restaurar compras e opção de continuar no plano gratuito.
-7. **Ecrã principal**: feed da watchlist, com pesquisa e calendário.
+5. **Iniciar sessão com a Apple**: guarda e sincroniza a watchlist.
+6. **Ecrã principal**: feed da watchlist, com pesquisa e calendário.
 
-Decisão em aberto: sign-in antes ou depois do paywall. Assumimos antes, por simplicidade (sem migrar dados anónimos). Revê-se com os dados do funil.
+O fluxo termina aqui na V1. O lugar do paywall (entre os passos 5 e 6) fica reservado para quando a monetização entrar.
 
-## 7. Monetização (proposta a aprovar)
+## 7. Monetização (adiada)
 
-Modelo **freemium com subscrição** (o paywall aparece no fim do onboarding):
+Decisão: **não monetizamos na V1**. Primeiro garantimos que há utilizadores que voltam; quando houver fluxo, passamos a exigir mais valor. Opções para depois, por ordem de probabilidade:
 
-- **Grátis**: até 3 ativos na watchlist, histórico de 7 dias, calendário económico.
-- **Pro**: watchlist ilimitada, histórico completo, filtros por tipo de fonte. Mais tarde: alertas.
-- **Preços a testar**: cerca de 4,99 €/mês e 39,99 €/ano, com 7 dias de teste. São hipóteses, a calibrar no Superwall com dados reais.
+1. **Subscrição Pro** (Superwall + StoreKit): limites no plano gratuito (ex.: nº de ativos, histórico) e extras como alertas. Preços só se definem com dados reais.
+2. **Publicidade**: só com tráfego que a justifique. Em iOS exige o pedido de consentimento de rastreamento e atualizar a declaração de privacidade da App Store, e o rendimento por utilizador costuma ser baixo.
 
-Risco assumido: as notícias já estão disponíveis gratuitamente noutros sítios, por isso a disposição para pagar é incerta. O valor a vender é poupança de tempo e qualidade de curadoria, não o acesso à informação.
+Risco assumido: as notícias já estão disponíveis gratuitamente noutros sítios. O valor a vender é poupança de tempo e qualidade de curadoria, não o acesso à informação.
+
+Preparação sem custo: o código evita assumir "tudo gratuito" em sítios espalhados (um único ponto de verificação de permissões, a criar quando houver planos).
 
 ## 8. Como medimos se funciona
 
-**Eventos do funil (PostHog):** `app_opened`, `onboarding_completed`, `paywall_viewed`, `subscribed`, `asset_search_performed` (ação principal).
+**Eventos do funil (PostHog):** `app_opened`, `onboarding_completed`, `asset_search_performed` (ação principal). Quando a monetização entrar acrescentam-se `paywall_viewed` e `subscribed`.
 Eventos de apoio: `watchlist_asset_added`, `calendar_viewed`, `article_opened`.
 
 **Métricas e metas iniciais** (hipóteses, a calibrar com as primeiras 100 a 200 pessoas):
@@ -78,7 +79,7 @@ Eventos de apoio: `watchlist_asset_added`, `calendar_viewed`, `article_opened`.
 |---|---|
 | Onboarding concluído / app aberta | > 60% |
 | Fez a ação principal na primeira sessão | > 50% |
-| Paywall visto → trial/subscrição | 3–8% |
+| Abriu um artigo (clique para a fonte) por sessão | ≥ 1 |
 | Retorno no dia 7 | > 20% |
 
 Qualidade: erros e crashes no Sentry, sessões sem crash > 99%.
@@ -88,5 +89,5 @@ Qualidade: erros e crashes no Sentry, sessões sem crash > 99%.
 1. **Fonte do calendário económico.** O Forex Factory não tem API oficial. É preciso escolher uma fonte com licença adequada (decidir no plano da Fase 1/2).
 2. **Licenças de conteúdo.** Planos gratuitos de APIs de notícias costumam ser para uso pessoal. Para uma app pública é provável que seja preciso um plano pago, ou usar RSS e fontes primárias (SEC, bancos centrais). Mostramos só título, fonte, data, link e resumo curto.
 3. **Relevância.** Associar bem uma notícia a uma empresa (aliases, ambiguidade de tickers) e agrupar duplicados.
-4. **Disposição para pagar** (ver secção 7).
+4. **Retenção.** Sem monetização, o sinal de sucesso é o utilizador voltar. Se o retorno ao dia 7 for baixo, rever o produto antes de pensar em receita.
 5. **Regras da App Store.** App financeira de notícias: não dar aconselhamento, incluir aviso legal, apagar conta in-app e revogar o token da Apple ao apagar.

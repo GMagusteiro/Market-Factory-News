@@ -16,7 +16,7 @@ Estado atual: **antes da Fase 1** (só documentação). Atualizar esta secção 
 - App: Expo (React Native), Expo Router, TypeScript, iOS primeiro
 - Backend: Supabase (Postgres, RLS em todas as tabelas, Auth, Edge Functions, Storage)
 - Login: Iniciar sessão com a Apple
-- Pagamentos: Superwall + StoreKit (paywall no fim do onboarding)
+- Pagamentos: Superwall + StoreKit, **só na Fase 5** (monetização adiada; V1 gratuita e sem limites)
 - Analytics: PostHog · Erros: Sentry · Emails: Resend (a partir de Edge Functions)
 - Publicação: Xcode → TestFlight → App Store; correções rápidas com EAS Update
 
@@ -39,7 +39,6 @@ Estado atual: **antes da Fase 1** (só documentação). Atualizar esta secção 
 
 ## Decisões importantes
 
-- Funil de analytics: `app_opened`, `onboarding_completed`, `paywall_viewed`, `subscribed`, `asset_search_performed`.
-- Monetização proposta (por aprovar): freemium; grátis até 3 ativos e 7 dias de histórico; Pro sem limites.
-- Sign-in assumido antes do paywall (rever com dados do funil).
+- Funil de analytics: `app_opened`, `onboarding_completed`, `asset_search_performed`. `paywall_viewed` e `subscribed` entram na Fase 5.
+- Monetização adiada (decisão do Gonçalo): primeiro fluxo de utilizadores. Depois, subscrição Pro e/ou publicidade. Não assumir "tudo gratuito" espalhado pelo código: usar um único ponto de verificação de permissões quando houver planos.
 - Fonte do calendário económico: por decidir.
