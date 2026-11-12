@@ -134,6 +134,94 @@ export function buildRows(items: ParsedItem[], feed: FeedConfig, assets: AssetRe
   return rows
 }
 
+// ---------- Calendário (BLS, ficheiro ICS oficial e gratuito) ----------
+export const BLS_ICS_URL = 'https://www.bls.gov/schedule/news_release/bls.ics'
+
+export type CalendarRow = {
+  id: string; title: string; country: string; currency: string
+  impact: 'low' | 'medium' | 'high'; starts_at: string; is_sample: false
+}
+
+/** Hora local de um fuso IANA para UTC, com horário de verão. */
+export function zonedToUtc(date: string, time: string, timeZone: string): Date {
+  const [y, mo, d] = date.split('-').map(Number)
+  const [h, mi] = time.split(':').map(Number)
+  const asUtc = Date.UTC(y, mo - 1, d, h, mi)
+  const offsetAt = (ms: number) => {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone, hourCycle: 'h23', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric' }).formatToParts(new Date(ms))
+    const get = (t: string) => Number(parts.find((p) => p.type === t)!.value)
+    return Date.UTC(get('year'), get('month') - 1, get('day'), get('hour'), get('minute')) - ms
+  }
+  let guess = asUtc - offsetAt(asUtc)
+  guess = asUtc - offsetAt(guess)
+  return new Date(guess)
+}
+
+export type IcsEvent = { uid: string; summary: string; startsAt: Date }
+
+/** Lê VEVENTs de um ICS. Ignora eventos de dia inteiro ou sem UID/hora. */
+export function parseIcs(ics: string): IcsEvent[] {
+  const lines = ics.replace(/\r/g, '').replace(/\n[ \t]/g, '').split('\n')
+  const out: IcsEvent[] = []
+  let cur: Record<string, string> | null = null
+  let dtParams = ''
+  for (const line of lines) {
+    if (line === 'BEGIN:VEVENT') { cur = {}; dtParams = ''; continue }
+    if (line === 'END:VEVENT') {
+      if (cur?.UID && cur.SUMMARY && cur.DTSTART && !/VALUE=DATE(?!-)/.test(dtParams) && /T\d{6}Z?$/.test(cur.DTSTART)) {
+        const m = cur.DTSTART.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})\d{2}(Z?)$/)!
+        const [, y, mo, d, h, mi, z] = m
+        let startsAt: Date | null = null
+        if (z) startsAt = new Date(Date.UTC(+y, +mo - 1, +d, +h, +mi))
+        else if (/TZID=US-Eastern|TZID=America\/New_York/.test(dtParams)) startsAt = zonedToUtc(`${y}-${mo}-${d}`, `${h}:${mi}`, 'America/New_York')
+        if (startsAt && !Number.isNaN(startsAt.getTime())) out.push({ uid: cur.UID, summary: cur.SUMMARY.replace(/\\,/g, ',').replace(/\;/g, ';').trim(), startsAt })
+      }
+      cur = null
+      continue
+    }
+    if (!cur) continue
+    const idx = line.indexOf(':')
+    if (idx < 0) continue
+    const head = line.slice(0, idx)
+    const name = head.split(';')[0]
+    if (name === 'DTSTART') dtParams = head
+    if (!(name in cur)) cur[name] = line.slice(idx + 1)
+  }
+  return out
+}
+
+// Título em português e impacto por tabela fixa (o BLS não classifica impacto).
+const BLS_MAP: [RegExp, string, 'low' | 'medium' | 'high'][] = [
+  [/^Employment Situation$/i, 'Emprego não agrícola e desemprego (EUA)', 'high'],
+  [/^Consumer Price Index$/i, 'Inflação (IPC) – EUA', 'high'],
+  [/^Producer Price Index$/i, 'Preços no produtor (PPI) – EUA', 'medium'],
+  [/^Job Openings and Labor Turnover Survey$/i, 'Ofertas de emprego (JOLTS) – EUA', 'medium'],
+  [/^Employment Cost Index$/i, 'Custo do trabalho (ECI) – EUA', 'medium'],
+  [/^U\.S\. Import and Export Price Indexes$/i, 'Preços de importação e exportação – EUA', 'low'],
+  [/^Productivity and Costs/i, 'Produtividade e custos – EUA', 'low'],
+  [/^Real Earnings$/i, 'Rendimentos reais – EUA', 'low'],
+]
+
+export function blsToRow(ev: IcsEvent): CalendarRow {
+  const hit = BLS_MAP.find(([re]) => re.test(ev.summary))
+  return {
+    id: `bls-${ev.uid}`,
+    title: hit ? hit[1] : `${ev.summary} (BLS)`,
+    country: 'Estados Unidos',
+    currency: 'USD',
+    impact: hit ? hit[2] : 'low',
+    starts_at: ev.startsAt.toISOString(),
+    is_sample: false,
+  }
+}
+
+/** Só eventos recentes ou próximos (últimos 14 dias e próximos 120). */
+export function blsRows(ics: string, now = new Date()): CalendarRow[] {
+  const from = now.getTime() - 14 * 86_400_000
+  const to = now.getTime() + 120 * 86_400_000
+  return parseIcs(ics).filter((e) => e.startsAt.getTime() >= from && e.startsAt.getTime() <= to).map(blsToRow)
+}
+
 async function run(): Promise<Record<string, unknown>> {
   // @ts-ignore: carregado só no Deno
   const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2') // eslint-disable-line import/no-unresolved
@@ -161,6 +249,18 @@ async function run(): Promise<Record<string, unknown>> {
     } catch (e) {
       report[feed.url] = `erro: ${(e as Error).message}` // um feed a falhar não pára os outros
     }
+  }
+  try {
+    const res = await fetch(BLS_ICS_URL, { headers: { 'User-Agent': ua } })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const events = blsRows(await res.text())
+    if (events.length) {
+      const { error } = await db.from('calendar_events').upsert(events, { onConflict: 'id' })
+      if (error) throw error
+    }
+    report[BLS_ICS_URL] = events.length
+  } catch (e) {
+    report[BLS_ICS_URL] = `erro: ${(e as Error).message}`
   }
   return report
 }

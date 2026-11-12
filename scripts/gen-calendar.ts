@@ -12,6 +12,9 @@ const FOMC = ['2026-12-09', '2027-01-27', '2027-03-17', '2027-04-28', '2027-06-0
 // Banco de Inglaterra: https://www.bankofengland.co.uk/monetary-policy/upcoming-mpc-dates (anúncio às 12:00 de Londres).
 const BOE = ['2026-11-05', '2026-12-17', '2027-02-04', '2027-03-18', '2027-04-29', '2027-06-17', '2027-07-29', '2027-09-16', '2027-11-04', '2027-12-16'];
 
+// BCE: https://www.ecb.europa.eu/press/calendars/mgcgc/html/index.en.html (decisão no 2.º dia, 14:15 de Frankfurt).
+const ECB = ['2026-12-17', '2027-02-04', '2027-03-18', '2027-04-29', '2027-06-10', '2027-07-22', '2027-09-09', '2027-10-28', '2027-12-16'];
+
 const q = (s: string) => `'${s.replace(/'/g, "''")}'`;
 const row = (id: string, title: string, country: string, currency: string, when: Date) =>
   `(${q(id)}, ${q(title)}, ${q(country)}, ${q(currency)}, 'high', ${q(when.toISOString())}, false)`;
@@ -30,3 +33,12 @@ on conflict (id) do update set title = excluded.title, starts_at = excluded.star
 
 writeFileSync(new URL('../supabase/migrations/0005_calendario_bancos_centrais.sql', import.meta.url), sql);
 console.log(`${rows.length} eventos escritos`);
+
+const ecbRows = ECB.map((d) => row(`bce-gc-${d}`, 'Decisão de taxas de juro (BCE)', 'Zona Euro', 'EUR', zonedToUtc(d, '14:15', 'Europe/Berlin')));
+const ecbSql = `-- 0006: datas oficiais de decisão de taxas do BCE. Gerado por scripts/gen-calendar.ts.
+insert into public.calendar_events (id, title, country, currency, impact, starts_at, is_sample) values
+  ${ecbRows.join(',\n  ')}
+on conflict (id) do update set title = excluded.title, starts_at = excluded.starts_at;
+`;
+writeFileSync(new URL('../supabase/migrations/0006_calendario_bce.sql', import.meta.url), ecbSql);
+console.log(`${ecbRows.length} eventos do BCE escritos`);

@@ -22,3 +22,7 @@ $$);
 Para parar: `select cron.unschedule('ingest-news');`
 
 Limites conhecidos: sem agrupamento em histórias (cada artigo fica sozinho); ligação a ativos/temas por palavras-chave simples; o feed do BCE e da SEC podem mudar de endereço (a resposta do teste mostra o erro).
+
+## Calendário (BLS)
+
+A função `ingest-news` também lê o calendário oficial do BLS (`bls.ics`) e grava IPC, emprego, PPI, JOLTS, etc. em `calendar_events` (ids `bls-…`). Depois de atualizar o código da função no painel (colar o novo `index.ts` e Deploy), a resposta do teste passa a incluir uma linha com o número de eventos do BLS.

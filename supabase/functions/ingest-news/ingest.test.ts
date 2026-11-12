@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, type AssetRef, type FeedConfig } from './index'
+import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, parseIcs, blsRows, zonedToUtc, type AssetRef, type FeedConfig } from './index'
 
 const rss = `<?xml version="1.0"?><rss version="2.0"><channel>
 <item><title><![CDATA[Fed holds interest rate &amp; signals patience]]></title>
@@ -75,4 +75,56 @@ test('resumo só em fontes oficiais e com limite', () => {
 test('userAgent usa o contacto fornecido e nunca o inventa', () => {
   assert.equal(userAgent('a@b.pt'), 'MarketLens/1.0 (a@b.pt)')
   assert.equal(userAgent(undefined), 'MarketLens/1.0 (sem-contacto)')
+})
+
+const ICS = `BEGIN:VCALENDAR
+VERSION:2.0
+BEGIN:VEVENT
+UID:aaa
+DTSTART;TZID=US-Eastern:20261210T083000
+SUMMARY:Consumer Price Index
+CATEGORIES:IMPORTANT, BLS
+END:VEVENT
+BEGIN:VEVENT
+UID:bbb
+DTSTART;TZID=US-Eastern:20270312T083000
+SUMMARY:Employment Situation
+END:VEVENT
+BEGIN:VEVENT
+UID:ccc
+DTSTART;TZID=US-Eastern:20261215T100000
+SUMMARY:Metropolitan Area Employment and
+  Unemployment (Monthly)
+END:VEVENT
+BEGIN:VEVENT
+UID:ddd
+DTSTART;VALUE=DATE:20261225
+SUMMARY:Christmas
+END:VEVENT
+BEGIN:VEVENT
+UID:eee
+DTSTART;TZID=US-Eastern:20250103T100000
+SUMMARY:Antigo
+END:VEVENT
+END:VCALENDAR`
+
+test('parseIcs: fuso US-Eastern, dobra de linhas e ignora dia inteiro', () => {
+  const ev = parseIcs(ICS)
+  assert.equal(ev.length, 4)
+  assert.equal(ev[0].startsAt.toISOString(), '2026-12-10T13:30:00.000Z') // EST, UTC-5
+  assert.equal(ev[1].startsAt.toISOString(), '2027-03-12T13:30:00.000Z') // antes do verão (14 mar)
+  assert.equal(ev[2].summary, 'Metropolitan Area Employment and Unemployment (Monthly)')
+})
+
+test('blsRows: janela de datas, título em português, impacto e id estável', () => {
+  const rows = blsRows(ICS, new Date('2026-11-12T12:00:00Z'))
+  assert.deepEqual(rows.map((r) => r.id), ['bls-aaa', 'bls-ccc']) // bbb está a mais de 120 dias; eee é antigo
+  assert.equal(rows[0].title, 'Inflação (IPC) – EUA')
+  assert.equal(rows[0].impact, 'high')
+  assert.equal(rows[1].impact, 'low')
+  assert.match(rows[1].title, /\(BLS\)$/)
+})
+
+test('zonedToUtc da função respeita o horário de verão', () => {
+  assert.equal(zonedToUtc('2027-04-01', '08:30', 'America/New_York').toISOString(), '2027-04-01T12:30:00.000Z')
 })

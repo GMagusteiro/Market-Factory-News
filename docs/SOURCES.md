@@ -33,11 +33,11 @@ Decisão (2026-11-12, Gonçalo): fase de teste **sem custos**, só com fontes of
 |---|---|---|
 | Fed (fomccalendars) | Datas das decisões do FOMC | **Feito** (migração 0005; 2027 provisório) |
 | Banco de Inglaterra (upcoming-mpc-dates) | Datas das decisões do MPC | **Feito** (migração 0005) |
-| BCE (calendário do Conselho do BCE) | Reuniões de política monetária | **Por fazer**: falta confirmar as datas na página oficial |
-| BLS (bls.ics, atualizado às sextas) | IPC, emprego (NFP), PPI, JOLTS dos EUA | **Por fazer**: parser do ficheiro ICS; horas em Nova Iorque |
+| BCE (calendário do Conselho do BCE) | Decisões de política monetária | **Feito** (migração 0006; hora 14:15 de Frankfurt) |
+| BLS (bls.ics, atualizado às sextas) | IPC, emprego (NFP), PPI, JOLTS dos EUA | **Feito** na função `ingest-news` (a cada execução: últimos 14 e próximos 120 dias) |
 | Finance Calendar | 14 países, consenso e impacto | Pago; adiado |
 
-Limites desta opção: sem consenso/previsão, sem valor "atual" e sem classificação de impacto automática (as decisões de taxas são marcadas como impacto alto; o BLS será mapeado por tabela fixa). Cobre EUA, Reino Unido e (quando feito) Zona Euro.
+Limites desta opção: sem consenso/previsão, sem valor "atual" e sem classificação de impacto automática (as decisões de taxas são marcadas como impacto alto; o BLS será mapeado por tabela fixa). Cobre EUA, Reino Unido e Zona Euro (só decisões de taxas na Zona Euro; sem IPC nem PIB europeus).
 
 ## Requisitos técnicos da ingestão
 
