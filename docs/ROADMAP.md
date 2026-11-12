@@ -2,7 +2,7 @@
 
 Regra de trabalho: antes de cada fase escreve-se um plano curto, o Gonçalo aprova, e só depois se executa. Uma funcionalidade só está "feita" depois de testada a correr no browser e de ter commit próprio.
 
-## Fase 1 — Ação principal a funcionar no browser (hoje)
+## Fase 1 — Ação principal a funcionar no browser (hoje) — CONCLUÍDA
 
 Objetivo: abrir a app, escolher um ativo, escolher um período e ver notícias. Dados locais (JSON), sem backend.
 

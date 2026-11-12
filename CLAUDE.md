@@ -2,7 +2,7 @@
 
 Site de notícias de ações e forex por ativo e período (web primeiro, app iOS mais tarde), com calendário económico e watchlist. Documentos: `docs/PRD.md` (produto) e `docs/ROADMAP.md` (fases).
 
-Estado atual: **antes da Fase 1** (só documentação). Atualizar esta secção no fim de cada fase.
+Estado atual: **Fase 1 concluída** (a correr no browser com dados de exemplo locais). A seguir: plano da Fase 2, por aprovar. Atualizar esta secção no fim de cada fase.
 
 ## Como trabalhamos
 
@@ -31,11 +31,36 @@ Estado atual: **antes da Fase 1** (só documentação). Atualizar esta secção 
 
 ## Comandos
 
-(A preencher na Fase 1.)
+```bash
+npm install                 # dependências
+npx expo start --web        # servidor de desenvolvimento (browser)
+npm run export:web          # gera o site estático em dist/ (e dist/404.html)
+npx serve dist -l 3000      # serve o site gerado, para testar como em produção
+npm run typecheck           # tsc --noEmit
+npm run lint                # eslint
+npm test                    # testes da lógica (node:test via tsx)
+```
+
+Antes de dar uma tarefa por feita: `npm run lint`, `npm run typecheck`, `npm test` e testar o fluxo no browser contra o site exportado.
 
 ## Arquitetura
 
-(A preencher na Fase 1.)
+- `src/app/`: rotas (Expo Router). `index` (pesquisa), `ativo/[slug]` (uma página estática por ativo, via `generateStaticParams`), `watchlist`, `calendario`, `+html.tsx`, `+not-found.tsx`.
+- `src/design/`: design system. `tokens.ts` (cores claro/escuro, espaçamentos, tipografia) e `useTheme.ts`. Nada de cores ou tamanhos soltos nos ecrãs.
+- `src/components/`: componentes de funcionalidade (`AssetPicker`, `PeriodFilter`, `NewsList`, `EventList`, `TopNav`, `SampleBanner`); `ui/` tem os blocos básicos (`AppText`, `Button`, `Chip`, `Badge`, `Card`, `Section`, `Screen`).
+- `src/data/`: DADOS DE EXEMPLO (fictícios) em JSON + `index.ts`, que gera as notícias. `SAMPLE_NOW` é a data fixa de "agora" (2026-11-12T12:00Z); na Fase 2 passa a hora real e os dados vêm do Supabase.
+- `src/lib/`: lógica pura e testada (`period.ts`, `search.ts`, `format.ts`, `usePeriod.ts`, `types.ts`).
+- `src/state/watchlist.tsx`: watchlist em AsyncStorage (no browser, localStorage).
+
+## Notas sobre o Expo SDK 58 e este ambiente
+
+- O SDK 58 mudou coisas: ler sempre a documentação da versão (https://docs.expo.dev/llms.txt) antes de mexer em APIs do Expo.
+- `+html.tsx` tem de desenhar `headNodes` e `bodyNodes` (de `useServerDocumentContext`), senão o HTML não leva scripts nem metadados. Título e descrição de cada página vêm de `export function generateMetadata()`, não de `<Head>`.
+- TypeScript 6: os tipos de `@types/*` não entram sozinhos; estão declarados em `tsconfig.json` (`types`).
+- Neste ambiente o `expo install` e o `expo lint` falham (rede bloqueada para api.expo.dev). Usar `npm install` com a versão de `node_modules/expo/bundledNativeModules.json`; o ESLint está configurado à mão em `eslint.config.js`.
+- Alojamento estático: `npm run export:web` copia `+not-found.html` para `404.html`, que o Cloudflare Pages usa para URLs desconhecidos.
+- Hidratação: o tema começa sempre claro (via `useSyncExternalStore`) para o HTML estático e o cliente coincidirem.
+- Testes no browser: Playwright (Python) com `/usr/bin/google-chrome` contra `npx serve dist`. Esperar por `networkidle` antes de interagir, porque o HTML é estático e só fica interativo depois de hidratar.
 
 ## Decisões importantes
 
