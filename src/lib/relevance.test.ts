@@ -82,3 +82,11 @@ test('notícias do ativo vêm ordenadas das mais recentes para as mais antigas',
   const times = newsForAsset(nvda, range).map((entry) => Date.parse(entry.article.publishedAt));
   assert.deepEqual(times, times.slice().sort((a, b) => b - a));
 });
+
+test('em destaque: com includeSingleSource completa com histórias de uma só fonte, confirmadas primeiro', () => {
+  const top = topStories(SAMPLE_NOW, { includeSingleSource: true, withinHours: 24 * 30, limit: 50 });
+  const firstSingle = top.findIndex((s) => s.sourceCount < 2);
+  assert.ok(firstSingle > 0, 'há histórias de uma só fonte, depois das confirmadas');
+  assert.ok(top.slice(0, firstSingle).every((s) => s.sourceCount >= 2));
+  assert.ok(top.slice(firstSingle).every((s) => s.sourceCount < 2));
+});

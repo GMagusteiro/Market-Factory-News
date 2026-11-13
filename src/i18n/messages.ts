@@ -26,8 +26,8 @@ const pt = {
     'Escolhe um ativo, define o período e vê só o que importa, com a fonte e o tipo de cada artigo.',
   'home.highlights.title': 'Em destaque',
   'home.highlights.subtitle':
-    'As histórias mais relevantes das últimas 24 horas, confirmadas por várias fontes',
-  'home.highlights.empty': 'Sem histórias em destaque nas últimas 24 horas.',
+    'As histórias mais relevantes dos últimos 3 dias, por recência, fiabilidade da fonte e alcance',
+  'home.highlights.empty': 'Sem histórias em destaque nos últimos 3 dias.',
   'home.popular.title': 'Populares',
   'home.popular.subtitle': '{n} ativos disponíveis nesta fase',
   'home.events.title': 'Próximos eventos macro',
@@ -216,8 +216,8 @@ const en: Record<MessageKey, string> = {
     'Pick an asset, set the period and see only what matters, with the source and type of each article.',
   'home.highlights.title': 'Top stories',
   'home.highlights.subtitle':
-    'The most relevant stories of the last 24 hours, confirmed by several sources',
-  'home.highlights.empty': 'No top stories in the last 24 hours.',
+    'The most relevant stories of the last 3 days, by recency, source reliability and reach',
+  'home.highlights.empty': 'No top stories in the last 3 days.',
   'home.popular.title': 'Popular',
   'home.popular.subtitle': '{n} assets available at this stage',
   'home.events.title': 'Upcoming macro events',
@@ -401,8 +401,8 @@ const es: Record<MessageKey, string> = {
     'Elige un activo, define el periodo y ve solo lo que importa, con la fuente y el tipo de cada artículo.',
   'home.highlights.title': 'Destacadas',
   'home.highlights.subtitle':
-    'Las historias más relevantes de las últimas 24 horas, confirmadas por varias fuentes',
-  'home.highlights.empty': 'Sin historias destacadas en las últimas 24 horas.',
+    'Las historias más relevantes de los últimos 3 días, por recencia, fiabilidad de la fuente y alcance',
+  'home.highlights.empty': 'Sin historias destacadas en los últimos 3 días.',
   'home.popular.title': 'Populares',
   'home.popular.subtitle': '{n} activos disponibles en esta fase',
   'home.events.title': 'Próximos eventos macro',

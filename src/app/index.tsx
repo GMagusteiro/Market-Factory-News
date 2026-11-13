@@ -37,7 +37,7 @@ export default function HomeScreen() {
   const goToAsset = (slug: string) =>
     router.push({ pathname: '/ativo/[slug]', params: { slug } });
 
-  const highlights = topStories(now);
+  const highlights = topStories(now, { withinHours: 72, includeSingleSource: true });
 
   const upcoming = calendarEvents
     .filter((event) => {

@@ -116,14 +116,19 @@ export interface HighlightOptions {
   /** Nº mínimo de fontes diferentes (evita destacar notícias de uma só fonte). */
   minSources?: number;
   limit?: number;
+  /** Completa com histórias de uma só fonte (ex.: comunicados oficiais) quando há poucas confirmadas. */
+  includeSingleSource?: boolean;
 }
 
 /** "Em destaque": as histórias mais relevantes e confirmadas por várias fontes. */
 export function topStories(now: Date, options: HighlightOptions = {}): Story[] {
-  const { withinHours = 24, minSources = 2, limit = 5 } = options;
+  const { withinHours = 24, minSources = 2, limit = 5, includeSingleSource = false } = options;
   const earliest = now.getTime() - withinHours * HOUR;
 
-  return buildStories(now)
-    .filter((story) => story.sourceCount >= minSources && Date.parse(story.updatedAt) >= earliest)
-    .slice(0, limit);
+  const recent = buildStories(now).filter((story) => Date.parse(story.updatedAt) >= earliest);
+  const confirmed = recent.filter((story) => story.sourceCount >= minSources);
+  if (!includeSingleSource) return confirmed.slice(0, limit);
+  // confirmadas primeiro; o resto por relevância (a pontuação já favorece recência e fontes oficiais)
+  const rest = recent.filter((story) => story.sourceCount < minSources);
+  return [...confirmed, ...rest].slice(0, limit);
 }

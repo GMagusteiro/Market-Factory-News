@@ -3,6 +3,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Article, Asset, CalendarEvent, Source, Theme } from '@/lib/types';
 
 import { SAMPLE_NOW, setDataset, type Dataset } from './index';
+import { clusterArticles } from '@/lib/cluster';
 import { getSupabase } from '@/lib/supabase';
 
 /** Linhas tal como vêm do Supabase (nomes das colunas em snake_case). */
@@ -63,7 +64,9 @@ export function mapRows(rows: RemoteRows, realNow: Date = new Date()): Dataset {
 
   const themes: Theme[] = rows.themes.map((t) => ({ slug: t.id, name: t.name, description: t.description ?? '' }));
 
-  const articles: Article[] = rows.articles.map((a) => ({
+  // só se agrupam por título os artigos sem história atribuída (as fontes reais não a trazem)
+  const noStory = new Set(rows.articles.filter((a) => !a.story_id).map((a) => a.id));
+  const articles: Article[] = clusterArticles(rows.articles.map((a) => ({
     id: a.id,
     assetSlugs: assetsByArticle.get(a.id) ?? [],
     themes: themesByArticle.get(a.id) ?? [],
@@ -73,7 +76,7 @@ export function mapRows(rows: RemoteRows, realNow: Date = new Date()): Dataset {
     type: a.type,
     publishedAt: a.published_at,
     url: a.url,
-  }));
+  })), (art) => noStory.has(art.id));
 
   const calendarEvents: CalendarEvent[] = rows.calendar_events
     .map((e) => ({

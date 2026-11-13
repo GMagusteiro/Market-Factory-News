@@ -127,3 +127,7 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - **Inglês é o idioma por omissão** (decisão do Gonçalo, 2026-11-13): HTML estático, títulos de página e eventos do calendário em inglês. Não há deteção do idioma do browser; só muda se a pessoa escolher PT/ES no seletor (guardado em `marketlens.lang.v1`). Os dados de exemplo locais (`src/data/*.json`) continuam em português, são temporários. `document.documentElement.lang` acompanha.
 - Fora do âmbito por agora: títulos de notícias e eventos do calendário ficam no idioma de origem; `generateMetadata` (título/descrição no HTML estático) fica em português; sem endereços por idioma (`/en`).
 - Testes de browser: `e2e/idiomas.py` (build sem Supabase). Os testes e2e em português fixam o idioma com `PT_STATE` (localStorage).
+
+## Top stories reais
+- `src/lib/cluster.ts`: agrupa por título parecido (≥3 palavras em comum, ≥55 % do título mais curto, janela 48 h) os artigos sem `story_id`; relatórios 8-K nunca se agrupam. Aplicado em `mapRows` (só a linhas sem `story_id`).
+- `topStories(now, { withinHours: 72, includeSingleSource: true })` na home: histórias confirmadas por várias fontes primeiro, depois as restantes por relevância.
