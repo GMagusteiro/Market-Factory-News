@@ -31,3 +31,6 @@ A função `ingest-news` também lê o calendário oficial do BLS (`bls.ics`) e 
 1. SQL Editor: corre `supabase/migrations/0010_fonte_banco_canada.sql` (cria a fonte `boc`).
 2. Edge Functions > `ingest-news` > Code: substitui pelo conteúdo atual de `supabase/functions/ingest-news/index.ts` e faz Deploy.
 3. Testa com Invoke: na resposta deve aparecer a linha do feed `bankofcanada.ca` com um número de artigos.
+
+## Notícias de empresas (8-K da SEC, acrescentado em 2026-11-13)
+Basta voltar a colar `supabase/functions/ingest-news/index.ts` na função e fazer Deploy (sem migração nova). No teste (Invoke) aparece `sec-8k` com o número de artigos; só surgem filings recentes (14 dias) com itens relevantes, como o 5.02 (saída ou entrada de CEO/administradores). O segredo `INGEST_CONTACT` tem de estar definido, porque a SEC exige contacto no User-Agent.

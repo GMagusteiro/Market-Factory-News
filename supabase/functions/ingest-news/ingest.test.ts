@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, parseIcs, blsRows, zonedToUtc, type AssetRef, type FeedConfig } from './index'
+import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, parseIcs, blsRows, sec8kRows, sec8kUrl, zonedToUtc, type AssetRef, type FeedConfig } from './index'
 
 const rss = `<?xml version="1.0"?><rss version="2.0"><channel>
 <item><title><![CDATA[Fed holds interest rate &amp; signals patience]]></title>
@@ -143,4 +143,30 @@ test('parseFeed lê RSS 1.0 (RDF) do Banco do Canadá com dc:date e liga ao tema
   assert.equal(rows.length, 1)
   assert.deepEqual(rows[0].themes, ['taxas-de-juro'])
   assert.equal(rows[0].article.source_id, 'boc')
+})
+
+const edgar = `<?xml version="1.0" encoding="ISO-8859-1"?><feed xmlns="http://www.w3.org/2005/Atom"><title>NVIDIA CORP</title>
+<entry><title>8-K  - Current report</title><link rel="alternate" type="text/html" href="https://www.sec.gov/Archives/edgar/data/1045810/000104581026000123/0001045810-26-000123-index.htm"/>
+<summary type="html">&lt;b&gt;Filed:&lt;/b&gt; 2026-11-10 &lt;b&gt;AccNo:&lt;/b&gt; 0001045810-26-000123 &lt;b&gt;Size:&lt;/b&gt; 250 KB
+Item 5.02: Departure of Directors or Certain Officers
+Item 9.01: Financial Statements and Exhibits</summary><updated>2026-11-10T16:05:12-05:00</updated></entry>
+<entry><title>8-K  - Current report</title><link rel="alternate" type="text/html" href="https://www.sec.gov/Archives/edgar/data/1045810/x-index.htm"/>
+<summary type="html">Item 9.01: Financial Statements and Exhibits</summary><updated>2026-11-09T10:00:00-05:00</updated></entry>
+<entry><title>8-K  - Current report</title><link rel="alternate" type="text/html" href="https://www.sec.gov/Archives/edgar/data/1045810/old-index.htm"/>
+<summary type="html">Item 2.02: Results of Operations</summary><updated>2026-09-01T10:00:00-05:00</updated></entry>
+</feed>`
+
+test('sec8kRows: só 8-K com itens relevantes e recentes, ligados ao ativo', () => {
+  const rows = sec8kRows(edgar, assets[0], new Date('2026-11-13T12:00:00Z'))
+  assert.equal(rows.length, 1) // sem 9.01 sozinho, sem filing antigo
+  assert.equal(rows[0].article.title, 'NVIDIA: SEC 8-K filing on departure or appointment of directors or officers')
+  assert.equal(rows[0].article.summary, 'Form 8-K, items 5.02, 9.01.')
+  assert.deepEqual(rows[0].assets, ['nvda'])
+  assert.equal(rows[0].article.source_id, 'sec')
+  assert.equal(rows[0].article.published_at, '2026-11-10T21:05:12.000Z')
+})
+
+test('sec8kRows: página de erro da SEC (sem feed) dá zero linhas; url usa o símbolo', () => {
+  assert.deepEqual(sec8kRows('<html>No matching Ticker Symbol.</html>', assets[0]), [])
+  assert.ok(sec8kUrl('BRK.B').includes('CIK=BRK.B') && sec8kUrl('A B').includes('CIK=A%20B'))
 })
