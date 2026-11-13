@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { calendarAheadDays, canSeeCalendarHistory, canUsePeriod, mergeWatchlists } from './access';
+import { CALENDAR_AHEAD_DAYS, canUsePeriod, mergeWatchlists } from './access';
 
 test('visitante só usa 24h e 7 dias; com conta usa tudo', () => {
   assert.equal(canUsePeriod('24h', 'guest', true), true);
@@ -16,15 +16,10 @@ test('visitante só usa 24h e 7 dias; com conta usa tudo', () => {
 
 test('sem autenticação configurada nada fica bloqueado', () => {
   assert.equal(canUsePeriod('30d', 'guest', false), true);
-  assert.equal(canSeeCalendarHistory('guest', false), true);
-  assert.equal(calendarAheadDays('guest', false), 14);
 });
 
-test('calendário: visitante vê 7 dias à frente e sem histórico', () => {
-  assert.equal(canSeeCalendarHistory('guest', true), false);
-  assert.equal(canSeeCalendarHistory('free', true), true);
-  assert.equal(calendarAheadDays('guest', true), 7);
-  assert.equal(calendarAheadDays('free', true), 14);
+test('calendário aberto a todos: 60 dias à frente', () => {
+  assert.equal(CALENDAR_AHEAD_DAYS, 60);
 });
 
 test('mergeWatchlists junta sem repetir e mantém a ordem da conta', () => {

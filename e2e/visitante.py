@@ -26,10 +26,8 @@ with sync_playwright() as p:
     check("conta: email inválido dá erro", pg.get_by_text("Escreve um email válido.").is_visible())
     pg.screenshot(path="/tmp/shots/20_conta.png", full_page=True)
     go(pg, BASE + "/calendario")
-    check("calendário: visitante vê 7 dias à frente", pg.get_by_role("button", name="Próximos 7 dias").is_visible())
-    pg.get_by_role("button", name="Últimos 14 dias · com conta").click()
-    pg.wait_for_url("**/conta")
-    check("calendário: histórico leva ao registo", True)
+    check("calendário: visitante vê 60 dias à frente", pg.get_by_role("button", name="Próximos 60 dias").is_visible())
+    check("calendário: histórico sem registo", pg.get_by_role("button", name="Últimos 14 dias", exact=True).is_visible())
     # watchlist de visitante continua local
     go(pg, BASE + "/ativo/nvda")
     pg.get_by_role("button", name="Seguir NVIDIA").click()

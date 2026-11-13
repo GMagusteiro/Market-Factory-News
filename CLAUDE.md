@@ -80,7 +80,7 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 ## Contas e acesso (implementado)
 
 - `src/state/auth.tsx` (AuthProvider/useAuth): sessão Supabase, nível `guest|free|premium`. O nível vem de `profiles.tier`, que o utilizador só lê; o Gonçalo altera no painel do Supabase (Table Editor > profiles).
-- `src/lib/access.ts`: regras (visitante: 24h e 7 dias, calendário 7 dias à frente sem histórico; com conta: tudo). Sem Supabase configurado nada é bloqueado.
+- `src/lib/access.ts`: regras (visitante: notícias de 24h e 7 dias; com conta: tudo). **Calendário aberto a todos** (60 dias à frente, 14 de histórico; migração 0007, decisão de 2026-11-13). Sem Supabase configurado nada é bloqueado.
 - O servidor aplica o mesmo: `supabase/migrations/0003_contas_e_acesso.sql` (RLS por nível, `delete_my_account()`, trigger que cria o perfil). Dados `is_sample` ficam sempre visíveis.
 - Watchlist: local para visitantes; com sessão junta a lista local com a da conta e sincroniza (`src/state/watchlist.tsx`). Ao sair, limpa a lista do dispositivo.
 - Página `/conta`: entrar por ligação mágica (Google só se `EXPO_PUBLIC_GOOGLE_LOGIN=1` e o fornecedor estiver configurado no Supabase), sair, apagar conta.

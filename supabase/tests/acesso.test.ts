@@ -1,4 +1,4 @@
-// Testa as migrações 0001-0003 num Postgres local (PGlite): perfis, nível e RLS.
+// Testa as migrações 0001-0003 e 0007 num Postgres local (PGlite): perfis, nível e RLS.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -17,7 +17,7 @@ async function setup() {
     create function auth.uid() returns uuid language sql stable as $$
       select nullif(current_setting('request.jwt.sub', true), '')::uuid $$;
     create role anon; create role authenticated;`);
-  for (const file of ['0001_init.sql', '0002_seed_exemplo.sql', '0003_contas_e_acesso.sql']) {
+  for (const file of ['0001_init.sql', '0002_seed_exemplo.sql', '0003_contas_e_acesso.sql', '0007_calendario_aberto.sql']) {
     await db.exec(readFileSync(join(dir, file), 'utf8'));
   }
   await db.exec(`
@@ -47,10 +47,10 @@ async function as(db: PGlite, role: 'anon' | 'authenticated', userId: string | n
 const realArticles = `select count(*)::int c from articles where not is_sample`;
 const realEvents = `select count(*)::int c from calendar_events where not is_sample`;
 
-test('visitante vê só 7 dias de notícias e o calendário próximo; amostras sempre visíveis', async () => {
+test('visitante vê só 7 dias de notícias mas todo o calendário; amostras sempre visíveis', async () => {
   const db = await setup();
   assert.equal(await as(db, 'anon', null, realArticles), 1);
-  assert.equal(await as(db, 'anon', null, realEvents), 1);
+  assert.equal(await as(db, 'anon', null, realEvents), 2); // calendário aberto (0007)
   assert.equal(await as(db, 'anon', null, `select count(*)::int c from articles where is_sample`), 203);
 });
 

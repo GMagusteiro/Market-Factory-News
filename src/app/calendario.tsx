@@ -1,4 +1,3 @@
-import { useRouter } from 'expo-router';
 import type { Metadata } from 'expo-router/server';
 import { useState } from 'react';
 import { View } from 'react-native';
@@ -10,9 +9,8 @@ import { Screen } from '@/components/ui/Screen';
 import { useDataset } from '@/data';
 import { space } from '@/design/tokens';
 import { useI18n } from '@/i18n';
-import { calendarAheadDays, canSeeCalendarHistory } from '@/lib/access';
+import { CALENDAR_AHEAD_DAYS } from '@/lib/access';
 import type { Impact } from '@/lib/types';
-import { useAuth } from '@/state/auth';
 
 type View_ = 'upcoming' | 'past';
 type ImpactFilter = 'all' | Impact;
@@ -29,14 +27,11 @@ export function generateMetadata(): Metadata {
 }
 
 export default function CalendarScreen() {
-  const router = useRouter();
   const { t } = useI18n();
-  const auth = useAuth();
-  const ahead = calendarAheadDays(auth.tier, auth.enabled);
-  const history = canSeeCalendarHistory(auth.tier, auth.enabled);
+  const ahead = CALENDAR_AHEAD_DAYS;
   const views: { key: View_; label: string }[] = [
     { key: 'upcoming', label: t('calendar.upcoming', { n: ahead }) },
-    { key: 'past', label: t(history ? 'calendar.past' : 'calendar.pastLocked') },
+    { key: 'past', label: t('calendar.past') },
   ];
   const [view, setView] = useState<View_>('upcoming');
   const [impact, setImpact] = useState<ImpactFilter>('all');
@@ -62,7 +57,7 @@ export default function CalendarScreen() {
               key={option.key}
               label={option.label}
               selected={view === option.key}
-              onPress={() => (option.key === 'past' && !history ? router.push('/conta') : setView(option.key))}
+              onPress={() => setView(option.key)}
             />
           ))}
         </View>

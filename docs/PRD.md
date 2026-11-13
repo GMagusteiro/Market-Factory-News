@@ -63,7 +63,7 @@ Proposta inicial de repartição (a confirmar e ajustar pelo Gonçalo antes de i
 | Pesquisa por ativo, páginas dos ativos | Sim | Sim |
 | Notícias por período | Até 7 dias | Até 30 dias e período personalizado |
 | Em destaque e notícias por tema | Sim (resumo) | Completo |
-| Calendário económico | Próximos 7 dias | Histórico e filtros completos |
+| Calendário económico | Aberto a todos: 60 dias à frente e 14 de histórico | Igual (decisão de 2026-11-13) |
 | Watchlist | Só neste dispositivo | Sincronizada entre dispositivos |
 
 **Premium manual:** além de visitante e conta gratuita, existe o nível **premium**, que o Gonçalo atribui a quem quiser (sem pagamento). Guarda-se num campo `tier` (`free` | `premium`) no perfil de cada utilizador, que o próprio utilizador não pode alterar: só o Gonçalo, pelo painel do Supabase, ou o servidor. O que o premium inclui fica por definir; mais tarde o pagamento (Fase 5) pode atribuir o mesmo nível automaticamente.
