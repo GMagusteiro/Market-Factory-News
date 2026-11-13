@@ -10,15 +10,18 @@ interface ButtonProps {
   onPress: () => void;
   variant?: 'primary' | 'secondary';
   accessibilityLabel?: string;
+  /** Para botões de escolha (ex.: idioma): marca o selecionado. */
+  selected?: boolean;
 }
 
-export function Button({ label, onPress, variant = 'primary', accessibilityLabel }: ButtonProps) {
+export function Button({ label, onPress, variant = 'primary', accessibilityLabel, selected }: ButtonProps) {
   const { colors } = useTheme();
   const primary = variant === 'primary';
 
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={selected === undefined ? 'button' : 'radio'}
+      accessibilityState={selected === undefined ? undefined : { selected }}
       accessibilityLabel={accessibilityLabel ?? label}
       onPress={onPress}
       style={({ pressed }) => ({

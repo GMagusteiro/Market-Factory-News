@@ -9,11 +9,15 @@ import {
   type ReactNode,
 } from 'react';
 
+import { setDisplayTimeZone } from '@/lib/format';
+import { DEFAULT_TIME_ZONE, isStoredTimeZone, resolveTimeZone } from '@/lib/timezones';
+
 import { LANGS, messages, type Lang, type MessageKey } from './messages';
 
 export { LANGS, type Lang, type MessageKey };
 
 const STORAGE_KEY = 'marketlens.lang.v1';
+const TZ_STORAGE_KEY = 'marketlens.tz.v1';
 
 /** Idioma por omissão do site: inglês. Só muda se a pessoa escolher outro no seletor. */
 export const DEFAULT_LANG: Lang = 'en';
@@ -37,6 +41,9 @@ interface I18nValue {
   /** Código para Intl (datas, listas). */
   locale: string;
   setLang: (lang: Lang) => void;
+  /** Escolha guardada: "device" ou um fuso IANA. */
+  timeZone: string;
+  setTimeZone: (tz: string) => void;
   t: (key: MessageKey, params?: Params) => string;
 }
 
@@ -59,6 +66,28 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Fuso horário: começa em Lisboa (igual ao HTML estático) e depois usa a escolha guardada.
+  const [timeZone, setTimeZoneState] = useState<string>(DEFAULT_TIME_ZONE);
+  setDisplayTimeZone(resolveTimeZone(timeZone));
+
+  useEffect(() => {
+    let cancelled = false;
+    AsyncStorage.getItem(TZ_STORAGE_KEY)
+      .then((stored) => {
+        if (!cancelled && isStoredTimeZone(stored)) setTimeZoneState(stored);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const setTimeZone = useCallback((next: string) => {
+    if (!isStoredTimeZone(next)) return;
+    setTimeZoneState(next);
+    AsyncStorage.setItem(TZ_STORAGE_KEY, next).catch(() => {});
+  }, []);
+
   useEffect(() => {
     if (typeof document !== 'undefined') document.documentElement.lang = lang;
   }, [lang]);
@@ -73,9 +102,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       lang,
       locale: LANGS.find((l) => l.code === lang)?.locale ?? 'en-GB',
       setLang,
+      timeZone,
+      setTimeZone,
       t: (key, params) => translate(lang, key, params),
     }),
-    [lang, setLang],
+    [lang, setLang, timeZone, setTimeZone],
   );
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;

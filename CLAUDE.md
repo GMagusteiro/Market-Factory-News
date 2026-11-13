@@ -87,6 +87,12 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Testes: `npm test` (inclui `supabase/tests/acesso.test.ts`, que corre as migrações num Postgres local). Browser: `e2e/browser.py` (build SEM Supabase: `EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_KEY= npm run export:web`) e `e2e/visitante.py` (build COM Supabase). Ambos esperam `npx serve dist -l 3000`.
 - Por configurar no painel do Supabase: Authentication > URL Configuration (Site URL e Redirect URLs com o endereço publicado). O servidor de email de origem do Supabase tem limite baixo de envios; para produção usar SMTP próprio (Resend).
 
+## Perfil e definições (implementado)
+- Migração `0008_perfil.sql`: `profiles.lang` ('pt'|'en'|'es') e `profiles.time_zone`; o utilizador só pode atualizar estas duas colunas na sua linha (`grant update (lang, time_zone)`); `tier` continua só do Gonçalo. Testado em `supabase/tests/acesso.test.ts`.
+- Fuso horário: guardado como `device` ou nome IANA (`src/lib/timezones.ts`), estado em `LanguageProvider` (chave local `marketlens.tz.v1`), aplicado a `src/lib/format.ts` via `setDisplayTimeZone`. Padrão: Europe/Lisbon (igual ao HTML estático).
+- `src/state/ProfileSync.tsx`: ao entrar aplica o idioma/fuso da conta (ou guarda os do dispositivo se a conta ainda não tem); depois guarda cada mudança. Definições em `/conta`.
+- Testes e2e: fazer o build com `EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_ANON_KEY=` vazios, porque o `.env` local tem as variáveis e ativaria contas e bloqueios.
+
 ## Legal e consentimento (implementado)
 
 - Páginas `/legal/privacidade|termos|cookies` (texto em `src/i18n/legal.ts`, pt/en/es; é texto-base, rever com um jurista antes do lançamento público). Ligações no rodapé de `Screen`. O contacto só aparece se `EXPO_PUBLIC_CONTACT_EMAIL` estiver definido (não ficar no código).

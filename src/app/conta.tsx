@@ -10,7 +10,8 @@ import { Card } from '@/components/ui/Card';
 import { Screen } from '@/components/ui/Screen';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
-import { useI18n, type MessageKey } from '@/i18n';
+import { LANGS, useI18n, type MessageKey } from '@/i18n';
+import { DEVICE_TIME_ZONE, TIME_ZONE_OPTIONS } from '@/lib/timezones';
 import { useAuth } from '@/state/auth';
 
 const GOOGLE_ENABLED = process.env.EXPO_PUBLIC_GOOGLE_LOGIN === '1';
@@ -25,7 +26,7 @@ export default function AccountScreen() {
   const { colors } = useTheme();
   const router = useRouter();
   const auth = useAuth();
-  const { t } = useI18n();
+  const { t, lang, setLang, timeZone, setTimeZone } = useI18n();
   const [email, setEmail] = useState('');
   const [sent, setSent] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -81,6 +82,25 @@ export default function AccountScreen() {
           <View style={{ alignSelf: 'flex-start', marginTop: space.sm }}>
             <Button label={t('account.signOut')} variant="secondary" onPress={() => run(async () => { await auth.signOut(); return null; }, () => router.replace('/'))} />
           </View>
+        </Card>
+
+        <Card>
+          <AppText variant="subheading">{t('account.prefs.title')}</AppText>
+          <AppText variant="small" tone="muted">
+            {t('account.prefs.body')}
+          </AppText>
+          <ChoiceRow
+            label={t('account.prefs.language')}
+            value={lang}
+            options={LANGS.map((l) => ({ value: l.code, label: l.name }))}
+            onChange={(v) => setLang(v as typeof lang)}
+          />
+          <ChoiceRow
+            label={t('account.prefs.timezone')}
+            value={timeZone}
+            options={[{ value: DEVICE_TIME_ZONE, label: t('account.prefs.device') }, ...TIME_ZONE_OPTIONS]}
+            onChange={setTimeZone}
+          />
         </Card>
 
         <Card>
@@ -180,5 +200,36 @@ export default function AccountScreen() {
         </AppText>
       ) : null}
     </Screen>
+  );
+}
+
+function ChoiceRow({
+  label,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange: (value: string) => void;
+}) {
+  return (
+    <View style={{ gap: space.xs, marginTop: space.sm }}>
+      <AppText variant="small" tone="muted">
+        {label}
+      </AppText>
+      <View accessibilityRole="radiogroup" accessibilityLabel={label} style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
+        {options.map((option) => (
+          <Button
+            key={option.value}
+            label={option.label}
+            variant={option.value === value ? 'primary' : 'secondary'}
+            selected={option.value === value}
+            onPress={() => onChange(option.value)}
+          />
+        ))}
+      </View>
+    </View>
   );
 }

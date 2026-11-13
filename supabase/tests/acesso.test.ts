@@ -1,4 +1,4 @@
-// Testa as migrações 0001-0003 e 0007 num Postgres local (PGlite): perfis, nível e RLS.
+// Testa as migrações 0001-0003, 0007 e 0008 num Postgres local (PGlite): perfis, nível e RLS.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,6 +20,9 @@ async function setup() {
   for (const file of ['0001_init.sql', '0002_seed_exemplo.sql', '0003_contas_e_acesso.sql', '0007_calendario_aberto.sql']) {
     await db.exec(readFileSync(join(dir, file), 'utf8'));
   }
+  // O Supabase dá todos os privilégios às tabelas novas; a 0008 tem de os apertar.
+  await db.exec(`grant all on public.profiles to anon, authenticated`);
+  await db.exec(readFileSync(join(dir, '0008_perfil.sql'), 'utf8'));
   await db.exec(`
     grant usage on schema public, auth to anon, authenticated;
     grant select on all tables in schema public to anon, authenticated;
@@ -95,5 +98,28 @@ test('watchlist é privada e apagar a conta remove tudo; visitante não pode apa
 
   await db.exec(`set role anon; reset request.jwt.sub`);
   await assert.rejects(() => db.query(`select delete_my_account()`));
+  await db.exec('reset role');
+});
+
+test('o utilizador altera o seu idioma e fuso, mas não o nível nem o perfil de outros', async () => {
+  const db = await setup();
+  const a = (await db.query<{ id: string }>(`insert into auth.users default values returning id`)).rows[0].id;
+  const b = (await db.query<{ id: string }>(`insert into auth.users default values returning id`)).rows[0].id;
+
+  await db.exec(`set role authenticated; set request.jwt.sub='${a}'`);
+  const mine = await db.query(`update profiles set lang='pt', time_zone='Asia/Tokyo' where id='${a}' returning 1`);
+  assert.equal(mine.rows.length, 1);
+  const others = await db.query(`update profiles set lang='es' where id='${b}' returning 1`);
+  assert.equal(others.rows.length, 0); // RLS esconde a linha de outra pessoa
+  await assert.rejects(() => db.query(`update profiles set tier='premium' where id='${a}'`)); // sem privilégio na coluna
+  await assert.rejects(() => db.query(`update profiles set lang='zh' where id='${a}'`)); // valor inválido
+  await db.exec('reset role');
+
+  const row = (await db.query<{ lang: string; time_zone: string; tier: string }>(`select lang, time_zone, tier from profiles where id='${a}'`)).rows[0];
+  assert.deepEqual(row, { lang: 'pt', time_zone: 'Asia/Tokyo', tier: 'free' });
+  assert.equal((await db.query<{ lang: string | null }>(`select lang from profiles where id='${b}'`)).rows[0].lang, null);
+
+  await db.exec(`set role anon; reset request.jwt.sub`);
+  await assert.rejects(() => db.query(`update profiles set lang='en'`));
   await db.exec('reset role');
 });

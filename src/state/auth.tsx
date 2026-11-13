@@ -11,7 +11,14 @@ import {
 import { Platform } from 'react-native';
 
 import type { Tier } from '@/lib/access';
+import { isStoredTimeZone } from '@/lib/timezones';
+import { isLang, type Lang } from '@/i18n';
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase';
+
+export interface ProfilePrefs {
+  lang: Lang | null;
+  timeZone: string | null;
+}
 
 interface AuthValue {
   /** false se o Supabase não estiver configurado: sem contas, sem bloqueios. */
@@ -21,6 +28,10 @@ interface AuthValue {
   email: string | null;
   userId: string | null;
   tier: Tier;
+  /** Preferências guardadas na conta; null até serem lidas (ou sem sessão). */
+  prefs: ProfilePrefs | null;
+  /** Guarda idioma e/ou fuso na conta. Devolve uma mensagem de erro, se houver. */
+  updatePrefs: (patch: Partial<ProfilePrefs>) => Promise<string | null>;
   /** Envia a ligação de acesso por email. Devolve uma mensagem de erro, se houver. */
   signInWithEmail: (email: string) => Promise<string | null>;
   signInWithGoogle: () => Promise<string | null>;
@@ -36,7 +47,7 @@ const redirectUrl = () =>
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(!isSupabaseConfigured);
-  const [profile, setProfile] = useState<{ userId: string; tier: 'free' | 'premium' } | null>(null);
+  const [profile, setProfile] = useState<{ userId: string; tier: 'free' | 'premium'; prefs: ProfilePrefs } | null>(null);
 
   const userId = session?.user.id ?? null;
 
@@ -69,16 +80,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     supabase
       .from('profiles')
-      .select('tier')
+      .select('tier, lang, time_zone')
       .eq('id', userId)
       .maybeSingle()
       .then(({ data }) => {
-        if (!cancelled) setProfile({ userId, tier: data?.tier === 'premium' ? 'premium' : 'free' });
+        if (cancelled) return;
+        setProfile({
+          userId,
+          tier: data?.tier === 'premium' ? 'premium' : 'free',
+          prefs: {
+            lang: isLang(data?.lang) ? data.lang : null,
+            timeZone: isStoredTimeZone(data?.time_zone) ? data.time_zone : null,
+          },
+        });
       });
     return () => {
       cancelled = true;
     };
   }, [userId]);
+
+  const updatePrefs = useCallback(
+    async (patch: Partial<ProfilePrefs>) => {
+      const supabase = getSupabase();
+      if (!supabase || !userId) return 'unavailable';
+      const row: Record<string, string | null> = {};
+      if ('lang' in patch) row.lang = patch.lang ?? null;
+      if ('timeZone' in patch) row.time_zone = patch.timeZone ?? null;
+      const { error } = await supabase.from('profiles').update(row).eq('id', userId);
+      if (error) return error.message;
+      setProfile((current) =>
+        current && current.userId === userId ? { ...current, prefs: { ...current.prefs, ...patch } } : current,
+      );
+      return null;
+    },
+    [userId],
+  );
 
   const signInWithEmail = useCallback(async (email: string) => {
     const supabase = getSupabase();
@@ -120,12 +156,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: session?.user.email ?? null,
       userId,
       tier: !userId ? 'guest' : profile?.userId === userId ? profile.tier : 'free',
+      prefs: profile?.userId === userId ? profile.prefs : null,
+      updatePrefs,
       signInWithEmail,
       signInWithGoogle,
       signOut,
       deleteAccount,
     }),
-    [ready, session, userId, profile, signInWithEmail, signInWithGoogle, signOut, deleteAccount],
+    [ready, session, userId, profile, updatePrefs, signInWithEmail, signInWithGoogle, signOut, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

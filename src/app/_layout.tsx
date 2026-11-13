@@ -11,6 +11,7 @@ import { LanguageProvider } from '@/i18n';
 import { useTheme } from '@/design/useTheme';
 import { AnalyticsBridge } from '@/state/analytics';
 import { AuthProvider } from '@/state/auth';
+import { ProfileSync } from '@/state/ProfileSync';
 import { ConsentProvider } from '@/state/consent';
 import { WatchlistProvider } from '@/state/watchlist';
 
@@ -32,6 +33,7 @@ export default function RootLayout() {
         <Slot />
         <ConsentBanner />
         <AnalyticsBridge />
+        <ProfileSync />
       </View>
       <StatusBar style="auto" />
     </WatchlistProvider>
