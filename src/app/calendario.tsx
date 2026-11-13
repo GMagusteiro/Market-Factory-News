@@ -21,7 +21,7 @@ const DAY = 24 * 60 * 60 * 1000;
 
 export function generateMetadata(): Metadata {
   return {
-    title: 'Economic calendar | MarketLens',
+    title: 'Economic calendar | Market Factory News',
     description: 'Economic calendar with macro events by date, currency and impact.',
   };
 }

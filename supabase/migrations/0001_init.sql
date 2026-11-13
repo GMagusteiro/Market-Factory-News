@@ -1,4 +1,4 @@
--- MarketLens: esquema inicial. Colar no Supabase (SQL Editor > New query > Run).
+-- Market Factory News: esquema inicial. Colar no Supabase (SQL Editor > New query > Run).
 -- Conteúdo (ativos, fontes, notícias, calendário): leitura pública, escrita só pelo servidor
 -- (Edge Functions com service role, que ignora RLS). Watchlist: só o próprio utilizador.
 

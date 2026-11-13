@@ -6,7 +6,7 @@ import { useTheme } from '@/design/useTheme';
 
 import { AppText } from './ui/AppText';
 
-/** Marca: lente (anel) com um brilho coral, mais o nome em serifa. Desenhada com views, sem imagens. */
+/** Marca: lente (anel) com um brilho coral, mais o nome Market Factory News em serifa. Desenhada com views, sem imagens. */
 export function LogoMark({ size = 28 }: { size?: number }) {
   const { colors } = useTheme();
   const ring = Math.round(size * 0.56);
@@ -49,11 +49,15 @@ export function LogoMark({ size = 28 }: { size?: number }) {
 export function Logo() {
   const { colors } = useTheme();
   return (
-    <Link href="/" accessibilityLabel="MarketLens" style={{ marginRight: space.sm }}>
+    <Link href="/" accessibilityLabel="Market Factory News" style={{ marginRight: space.sm }}>
       <View style={{ flexDirection: 'row', alignItems: 'center', gap: space.sm }}>
         <LogoMark />
-        <AppText style={{ fontFamily: fonts.serif, fontSize: 22, lineHeight: 28, fontWeight: '700', letterSpacing: -0.4 }}>
-          Market<AppText style={{ fontFamily: fonts.serif, fontSize: 22, lineHeight: 28, fontWeight: '700', fontStyle: 'italic', color: colors.primary }}>Lens</AppText>
+        <AppText style={{ fontFamily: fonts.serif, fontSize: 20, lineHeight: 26, fontWeight: '700', letterSpacing: -0.3 }}>
+          Market{' '}
+          <AppText style={{ fontFamily: fonts.serif, fontSize: 20, lineHeight: 26, fontWeight: '700', fontStyle: 'italic', color: colors.primary }}>
+            Factory
+          </AppText>{' '}
+          News
         </AppText>
       </View>
     </Link>

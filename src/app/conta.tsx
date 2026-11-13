@@ -18,7 +18,7 @@ import { useAuth } from '@/state/auth';
 const GOOGLE_ENABLED = process.env.EXPO_PUBLIC_GOOGLE_LOGIN === '1';
 
 export function generateMetadata(): Metadata {
-  return { title: 'Account | MarketLens', robots: 'noindex' };
+  return { title: 'Account | Market Factory News', robots: 'noindex' };
 }
 
 const BENEFITS: MessageKey[] = ['login.benefit1', 'login.benefit2', 'login.benefit3'];

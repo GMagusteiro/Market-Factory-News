@@ -1,4 +1,4 @@
-# Roadmap — MarketLens
+# Roadmap — Market Factory News
 
 Regra de trabalho: antes de cada fase escreve-se um plano curto, o Gonçalo aprova, e só depois se executa. Uma funcionalidade só está "feita" depois de testada a correr no browser e de ter commit próprio.
 

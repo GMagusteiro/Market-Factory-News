@@ -22,7 +22,7 @@ const WEEK = 7 * 24 * 60 * 60 * 1000;
 
 export function generateMetadata(): Metadata {
   return {
-    title: 'MarketLens: stock and forex news by asset and period',
+    title: 'Market Factory News: stock and forex news by asset and period',
     description:
       'Pick an asset (stock or forex pair), set the period and see the relevant news with the source and type of each article, next to the economic calendar.',
   };

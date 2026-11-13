@@ -35,7 +35,7 @@ with sync_playwright() as p:
     go(page, BASE + "/")
     expect(page.get_by_role("heading", name=re.compile("Notícias de ações e forex"))).to_be_visible()
     check("home: título e banner de dados de exemplo", page.get_by_text("Dados de exemplo").is_visible())
-    check("home: <title> correto", "MarketLens" in page.title(), page.title())
+    check("home: <title> correto", "Market Factory News" in page.title(), page.title())
     page.screenshot(path="/tmp/shots/01_home.png")
 
     # 1b. Em destaque (relevância por tema)

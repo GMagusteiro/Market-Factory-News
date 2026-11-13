@@ -39,7 +39,7 @@ test('buildIcs gera um calendário válido, ordenado, em UTC e com CRLF', () => 
   assert.ok(ics.includes('DTSTART:20261210T133000Z'))
   assert.ok(ics.includes('DTEND:20261210T134500Z'))
   assert.ok(ics.includes('DTSTAMP:20261113T120000Z'))
-  assert.ok(ics.includes('X-WR-CALNAME:MarketLens (USD)'))
+  assert.ok(ics.includes('X-WR-CALNAME:Market Factory News (USD)'))
   assert.ok(ics.includes('Previous: 3.1%'))
 })
 

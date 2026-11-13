@@ -73,8 +73,8 @@ test('resumo só em fontes oficiais e com limite', () => {
 })
 
 test('userAgent usa o contacto fornecido e nunca o inventa', () => {
-  assert.equal(userAgent('a@b.pt'), 'MarketLens/1.0 (a@b.pt)')
-  assert.equal(userAgent(undefined), 'MarketLens/1.0 (sem-contacto)')
+  assert.equal(userAgent('a@b.pt'), 'Market Factory News/1.0 (a@b.pt)')
+  assert.equal(userAgent(undefined), 'Market Factory News/1.0 (sem-contacto)')
 })
 
 const ICS = `BEGIN:VCALENDAR

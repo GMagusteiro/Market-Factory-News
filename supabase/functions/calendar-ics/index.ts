@@ -59,10 +59,10 @@ export function buildIcs(events: IcsEvent[], now: Date, currencies: string[] = [
   const lines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
-    'PRODID:-//MarketLens//Economic calendar//EN',
+    'PRODID:-//Market Factory News//Economic calendar//EN',
     'CALSCALE:GREGORIAN',
     'METHOD:PUBLISH',
-    `X-WR-CALNAME:${escapeText(currencies.length ? `MarketLens (${currencies.join(', ')})` : 'MarketLens')}`,
+    `X-WR-CALNAME:${escapeText(currencies.length ? `Market Factory News (${currencies.join(', ')})` : 'Market Factory News')}`,
     'REFRESH-INTERVAL;VALUE=DURATION:PT6H',
     'X-PUBLISHED-TTL:PT6H',
   ]

@@ -29,9 +29,9 @@ export async function generateStaticParams(): Promise<Record<string, string>[]> 
 /** Título e descrição próprios de cada ativo, escritos no HTML estático. */
 export const generateMetadata: GenerateMetadataFunction = (_request, params) => {
   const asset = getAsset(String(params.slug ?? ''));
-  if (!asset) return { title: 'Asset not found | MarketLens' };
+  if (!asset) return { title: 'Asset not found | Market Factory News' };
   return {
-    title: `${asset.name} (${asset.symbol}): news and macro events | MarketLens`,
+    title: `${asset.name} (${asset.symbol}): news and macro events | Market Factory News`,
     description: `News about ${asset.name} (${asset.symbol}) by period, with source and article type, and the macro events affecting ${asset.currencies.join(' and ')}.`,
   };
 };

@@ -18,7 +18,7 @@ import { usePeriod } from '@/lib/usePeriod';
 import { useWatchlist } from '@/state/watchlist';
 
 export function generateMetadata(): Metadata {
-  return { title: 'My watchlist | MarketLens', robots: 'noindex' };
+  return { title: 'My watchlist | Market Factory News', robots: 'noindex' };
 }
 
 export default function WatchlistScreen() {

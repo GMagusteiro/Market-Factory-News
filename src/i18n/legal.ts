@@ -19,7 +19,7 @@ export const legal: Record<Lang, Record<LegalDocId, LegalDoc>> = {
         {
           heading: 'Quem somos',
           paragraphs: [
-            'O MarketLens é um serviço de informação sobre notícias de ações e forex. O responsável pelo tratamento dos dados é o operador do MarketLens. Para exercer direitos ou colocar questões, use o contacto indicado no fim desta página.',
+            'O Market Factory News é um serviço de informação sobre notícias de ações e forex. O responsável pelo tratamento dos dados é o operador do Market Factory News. Para exercer direitos ou colocar questões, use o contacto indicado no fim desta página.',
           ],
         },
         {
@@ -57,7 +57,7 @@ export const legal: Record<Lang, Record<LegalDocId, LegalDoc>> = {
         {
           heading: 'Não é aconselhamento financeiro',
           paragraphs: [
-            'O conteúdo do MarketLens é informativo. Não constitui aconselhamento financeiro, de investimento, fiscal ou jurídico, nem recomendação para comprar ou vender qualquer ativo. As ligações entre notícias e ativos são sugestões automáticas e podem estar erradas. Decida por si, com a informação oficial e, se necessário, um profissional habilitado. Investir envolve risco de perda.',
+            'O conteúdo do Market Factory News é informativo. Não constitui aconselhamento financeiro, de investimento, fiscal ou jurídico, nem recomendação para comprar ou vender qualquer ativo. As ligações entre notícias e ativos são sugestões automáticas e podem estar erradas. Decida por si, com a informação oficial e, se necessário, um profissional habilitado. Investir envolve risco de perda.',
           ],
         },
         {
@@ -104,7 +104,7 @@ export const legal: Record<Lang, Record<LegalDocId, LegalDoc>> = {
         {
           heading: 'Who we are',
           paragraphs: [
-            'MarketLens is an information service about stock and forex news. The data controller is the operator of MarketLens. To exercise your rights or ask questions, use the contact shown at the end of this page.',
+            'Market Factory News is an information service about stock and forex news. The data controller is the operator of Market Factory News. To exercise your rights or ask questions, use the contact shown at the end of this page.',
           ],
         },
         {
@@ -142,7 +142,7 @@ export const legal: Record<Lang, Record<LegalDocId, LegalDoc>> = {
         {
           heading: 'Not financial advice',
           paragraphs: [
-            'MarketLens content is informational. It is not financial, investment, tax or legal advice, nor a recommendation to buy or sell any asset. Links between news and assets are automatic suggestions and may be wrong. Decide for yourself, using official information and, if needed, a qualified professional. Investing involves risk of loss.',
+            'Market Factory News content is informational. It is not financial, investment, tax or legal advice, nor a recommendation to buy or sell any asset. Links between news and assets are automatic suggestions and may be wrong. Decide for yourself, using official information and, if needed, a qualified professional. Investing involves risk of loss.',
           ],
         },
         {
@@ -189,7 +189,7 @@ export const legal: Record<Lang, Record<LegalDocId, LegalDoc>> = {
         {
           heading: 'Quiénes somos',
           paragraphs: [
-            'MarketLens es un servicio de información sobre noticias de acciones y forex. El responsable del tratamiento es el operador de MarketLens. Para ejercer sus derechos o hacer preguntas, use el contacto indicado al final de esta página.',
+            'Market Factory News es un servicio de información sobre noticias de acciones y forex. El responsable del tratamiento es el operador de Market Factory News. Para ejercer sus derechos o hacer preguntas, use el contacto indicado al final de esta página.',
           ],
         },
         {
@@ -227,7 +227,7 @@ export const legal: Record<Lang, Record<LegalDocId, LegalDoc>> = {
         {
           heading: 'No es asesoramiento financiero',
           paragraphs: [
-            'El contenido de MarketLens es informativo. No constituye asesoramiento financiero, de inversión, fiscal ni jurídico, ni una recomendación de comprar o vender ningún activo. Los vínculos entre noticias y activos son sugerencias automáticas y pueden ser erróneos. Decida por sí mismo, con información oficial y, si es necesario, un profesional habilitado. Invertir conlleva riesgo de pérdida.',
+            'El contenido de Market Factory News es informativo. No constituye asesoramiento financiero, de inversión, fiscal ni jurídico, ni una recomendación de comprar o vender ningún activo. Los vínculos entre noticias y activos son sugerencias automáticas y pueden ser erróneos. Decida por sí mismo, con información oficial y, si es necesario, un profesional habilitado. Invertir conlleva riesgo de pérdida.',
           ],
         },
         {

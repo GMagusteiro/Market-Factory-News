@@ -9,7 +9,7 @@ O servidor de email de origem do Supabase tem um limite muito baixo de envios po
    - Host `smtp.resend.com`, porta `465`
    - Username `resend`
    - Password: a chave `re_...`
-   - Sender email: um endereço do teu domínio verificado (ex.: `login@teudominio.pt`); Sender name: `MarketLens`
+   - Sender email: um endereço do teu domínio verificado (ex.: `login@teudominio.pt`); Sender name: `Market Factory News`
 5. Authentication → Rate Limits: subir o limite de emails por hora (ex.: 30).
 6. Testar: pedir uma ligação em /conta com um email que não seja o teu.
 

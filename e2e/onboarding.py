@@ -16,7 +16,7 @@ with sync_playwright() as p:
     go(pg, BASE + "/")
     check("convite de onboarding na página inicial", pg.get_by_text("Começa pelos teus ativos").is_visible())
     pg.get_by_role("button", name="Começar").click(); pg.wait_for_url("**/bem-vindo"); pg.wait_for_timeout(500)
-    check("abre o onboarding", pg.get_by_role("heading", name="Bem-vindo ao MarketLens").is_visible())
+    check("abre o onboarding", pg.get_by_role("heading", name="Bem-vindo ao Market Factory News").is_visible())
     check("passo 2 só depois de escolher interesse", pg.get_by_text("2. Escolhe pelo menos 3 ativos").count() == 0)
     check("sem botão de criar antes de 3 ativos", pg.get_by_role("button", name="Criar a minha watchlist").count() == 0)
     pg.get_by_role("button", name="Ações", exact=True).click(); pg.wait_for_timeout(300)

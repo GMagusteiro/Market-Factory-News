@@ -1,7 +1,7 @@
 import { Platform, type TextStyle } from 'react-native';
 
 /**
- * Design system do MarketLens: ÚNICO sítio com cores, tipografia e espaçamentos.
+ * Design system do Market Factory News: ÚNICO sítio com cores, tipografia e espaçamentos.
  * Os ecrãs e componentes nunca definem cores ou tamanhos soltos.
  */
 

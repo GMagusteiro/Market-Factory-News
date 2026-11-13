@@ -1,4 +1,4 @@
-# Fontes de dados — MarketLens
+# Fontes de dados — Market Factory News
 
 Verificado em 2026-11-12. Isto é análise técnica, não aconselhamento jurídico. Termos mudam: reconfirmar antes do lançamento público.
 
@@ -52,6 +52,6 @@ Limites desta opção: sem consenso/previsão, sem valor "atual" e sem classific
 ## Requisitos técnicos da ingestão
 
 - Corre numa Edge Function do Supabase com a chave de serviço **só** no servidor.
-- Um pedido por feed por execução, com User-Agent `MarketLens/1.0 (contacto)`; respeitar cabeçalhos de cache.
+- Um pedido por feed por execução, com User-Agent `Market Factory News/1.0 (contacto)`; respeitar cabeçalhos de cache.
 - Normalizar, remover duplicados (URL canónico) e associar ativos/temas por palavras-chave.
 - Agendar com pg_cron (ex.: a cada 15 min).

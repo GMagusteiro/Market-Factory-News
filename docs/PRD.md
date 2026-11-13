@@ -1,4 +1,4 @@
-# PRD — MarketLens (nome de trabalho)
+# PRD — Market Factory News (nome de trabalho)
 
 Estado: **rascunho v0.3**. Web primeiro (sem investimento inicial); a app iOS vem depois. Monetização adiada: primeiro construímos valor e fluxo de utilizadores (ver secção 7).
 

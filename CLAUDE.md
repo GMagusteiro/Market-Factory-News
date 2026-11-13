@@ -1,4 +1,4 @@
-# CLAUDE.md — MarketLens
+# CLAUDE.md — Market Factory News
 
 Site de notícias de ações e forex por ativo e período (web primeiro, app iOS mais tarde), com calendário económico e watchlist. Documentos: `docs/PRD.md` (produto) e `docs/ROADMAP.md` (fases).
 
@@ -102,7 +102,7 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 
 ## Identidade visual (implementada, direção B+C)
 - Tom editorial (títulos em serifa, `fonts.serif` em `src/design/tokens.ts`) com cor vibrante: primário verde-azulado, acento coral (`accent`), fundo "papel" quente, cantos mais redondos. Tudo nos tokens; ecrãs não definem cores.
-- Logótipo `src/components/Logo.tsx` (lente + brilho coral, "Market" + "*Lens*" em itálico), ícones/favicon gerados em `assets/images`. O nome MarketLens é provisório: verificar marca registada antes de lançar.
+- Logótipo `src/components/Logo.tsx` (lente + brilho coral, "Market *Factory* News", com Factory em itálico), ícones/favicon gerados em `assets/images`. O nome oficial é Market Factory News (decisão do Gonçalo, 2026-11-13); verificar marca registada antes de lançar. Chaves internas (marketlens.*) mantidas para não perder dados dos utilizadores.
 - Decisão (2026-11-13): cripto entra no produto como tipo de ativo; anúncios da Binance como fonte a confirmar.
 
 ## Legal e consentimento (implementado)

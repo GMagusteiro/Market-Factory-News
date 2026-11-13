@@ -7,7 +7,7 @@ export type ParsedItem = { title: string; url: string; publishedAt: string; desc
 export type AssetRef = { slug: string; symbol: string; name: string; aliases: string[] }
 
 export function userAgent(contact: string | undefined): string {
-  return `MarketLens/1.0 (${contact || 'sem-contacto'})`
+  return `Market Factory News/1.0 (${contact || 'sem-contacto'})`
 }
 
 export const FEEDS: FeedConfig[] = [
