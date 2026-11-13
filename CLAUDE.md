@@ -100,6 +100,11 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 ## "Porque está ligado" (implementado)
 - `NewsEntry.viaAssets` (em `src/lib/news.ts`) diz que ativos do conjunto pedido pertencem ao tema que fez a ligação; `NewsList` mostra o botão "Porque está ligado?" com a cadeia notícia → tema → ativo e o aviso de que é automático e informativo. Nunca linguagem de recomendação.
 
+## Identidade visual (implementada, direção B+C)
+- Tom editorial (títulos em serifa, `fonts.serif` em `src/design/tokens.ts`) com cor vibrante: primário verde-azulado, acento coral (`accent`), fundo "papel" quente, cantos mais redondos. Tudo nos tokens; ecrãs não definem cores.
+- Logótipo `src/components/Logo.tsx` (lente + brilho coral, "Market" + "*Lens*" em itálico), ícones/favicon gerados em `assets/images`. O nome MarketLens é provisório: verificar marca registada antes de lançar.
+- Decisão (2026-11-13): cripto entra no produto como tipo de ativo; anúncios da Binance como fonte a confirmar.
+
 ## Legal e consentimento (implementado)
 
 - Páginas `/legal/privacidade|termos|cookies` (texto em `src/i18n/legal.ts`, pt/en/es; é texto-base, rever com um jurista antes do lançamento público). Ligações no rodapé de `Screen`. O contacto só aparece se `EXPO_PUBLIC_CONTACT_EMAIL` estiver definido (não ficar no código).

@@ -2,6 +2,7 @@ import { Link, usePathname } from 'expo-router';
 import { Pressable, View } from 'react-native';
 
 import { layout, space, typography } from '@/design/tokens';
+import { Logo } from './Logo';
 import { AppText } from './ui/AppText';
 import { useTheme } from '@/design/useTheme';
 import { LANGS, useI18n } from '@/i18n';
@@ -48,9 +49,7 @@ export function TopNav() {
           rowGap: space.sm,
           paddingVertical: space.md,
         }}>
-        <Link href="/" style={[typography.heading, { color: colors.primary, marginRight: space.sm }]}>
-          MarketLens
-        </Link>
+        <Logo />
         {items.map((item) => (
           <Link
             key={item.href}
