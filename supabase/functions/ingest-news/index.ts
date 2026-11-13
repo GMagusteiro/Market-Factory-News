@@ -324,6 +324,84 @@ export function blsRows(ics: string, now = new Date()): CalendarRow[] {
   return parseIcs(ics).filter((e) => e.startsAt.getTime() >= from && e.startsAt.getTime() <= to).map(blsToRow)
 }
 
+// ---------- Notícias gerais importantes (GDELT: índice aberto de notícias, sem chave) ----------
+// Em vez de ler sites de media, perguntamos ao GDELT por acontecimentos que mexem com empresas (saída de CEO, falência,
+// fusões, investigações, avisos de resultados). Guardamos só título, fonte, data e link; só ficam os que mencionam
+// uma das nossas empresas. Limite do GDELT: 1 pedido a cada 5 segundos.
+export const GDELT_QUERIES: { label: string; query: string }[] = [
+  { label: 'lideranca', query: '("CEO" OR "chief executive" OR "chairman") ("resigns" OR "resigned" OR "steps down" OR "stepping down" OR "ousted" OR "fired" OR "retire")' },
+  { label: 'falencia', query: '("files for bankruptcy" OR "chapter 11" OR "insolvency" OR "default on debt")' },
+  { label: 'regulacao', query: '("SEC charges" OR "SEC investigation" OR "DOJ probe" OR "antitrust" OR "fined" OR "product recall")' },
+  { label: 'fusoes', query: '("to acquire" OR "agrees to buy" OR "takeover" OR "merger" OR "buyout")' },
+  { label: 'resultados', query: '("profit warning" OR "cuts guidance" OR "raises guidance" OR "earnings miss" OR "earnings beat" OR "stock split")' },
+  { label: 'mercado', query: '("shares plunge" OR "shares surge" OR "stock tumbles" OR "stock soars" OR "trading halted")' },
+]
+export const GDELT_TIMESPAN = '3h'
+
+export type GdeltArticle = { url: string; title: string; seendate: string; domain: string; language?: string }
+
+export function gdeltUrl(query: string, timespan = GDELT_TIMESPAN, max = 75): string {
+  const params = new URLSearchParams({ query: `${query} sourcelang:english`, mode: 'ArtList', format: 'json', maxrecords: String(max), sort: 'DateDesc', timespan })
+  return `https://api.gdeltproject.org/api/v2/doc/doc?${params.toString()}`
+}
+
+export function parseGdelt(text: string): GdeltArticle[] {
+  // Quando há limite de pedidos o GDELT responde texto simples, não JSON.
+  let data: any
+  try { data = JSON.parse(text) } catch { throw new Error(text.trim().slice(0, 80) || 'resposta vazia') }
+  return Array.isArray(data?.articles) ? data.articles : []
+}
+
+/** "20261113T193000Z" -> ISO. */
+export function gdeltDate(seen: string): string | null {
+  const m = /^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z$/.exec(seen ?? '')
+  if (!m) return null
+  const d = new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}Z`)
+  return Number.isNaN(d.getTime()) ? null : d.toISOString()
+}
+
+const TIER1_DOMAINS = ['reuters.com', 'bloomberg.com', 'wsj.com', 'ft.com', 'apnews.com', 'cnbc.com']
+const TIER2_DOMAINS = ['marketwatch.com', 'barrons.com', 'nytimes.com', 'theguardian.com', 'bbc.com', 'bbc.co.uk', 'cnn.com', 'forbes.com', 'businessinsider.com', 'finance.yahoo.com', 'yahoo.com', 'axios.com', 'fortune.com', 'economist.com', 'investors.com']
+
+export function domainTier(domain: string): 1 | 2 | 3 {
+  const d = domain.toLowerCase().replace(/^www\./, '')
+  const is = (list: string[]) => list.some((x) => d === x || d.endsWith(`.${x}`))
+  return is(TIER1_DOMAINS) ? 1 : is(TIER2_DOMAINS) ? 2 : 3
+}
+
+export function gdeltSourceId(domain: string): string {
+  return 'web-' + domain.toLowerCase().replace(/^www\./, '').replace(/[^a-z0-9.-]/g, '')
+}
+
+export type GdeltSource = { id: string; name: string; type: 'news'; tier: 1 | 2 | 3 }
+
+export function gdeltRows(items: GdeltArticle[], assets: AssetRef[], now = new Date(), maxAgeHours = 24): { rows: Row[]; sources: GdeltSource[] } {
+  const seen = new Set<string>()
+  const rows: Row[] = []
+  const sources = new Map<string, GdeltSource>()
+  const earliest = now.getTime() - maxAgeHours * 3_600_000
+  for (const it of items) {
+    if (!it?.url || !/^https?:\/\//i.test(it.url) || seen.has(it.url)) continue
+    seen.add(it.url)
+    const title = decode(String(it.title ?? '')).replace(/\s+/g, ' ').trim()
+    const published = gdeltDate(it.seendate)
+    const domain = String(it.domain ?? '').trim()
+    if (title.length < 15 || !published || !domain) continue
+    const ts = Date.parse(published)
+    if (ts < earliest || ts > now.getTime() + 3_600_000) continue
+    const matched = matchAssets(title, assets)
+    if (matched.length === 0) continue // só interessam notícias sobre empresas que seguimos
+    const id = gdeltSourceId(domain)
+    if (!sources.has(id)) sources.set(id, { id, name: domain.replace(/^www\./, ''), type: 'news', tier: domainTier(domain) })
+    rows.push({
+      article: { source_id: id, type: 'news', title, summary: null, url: it.url, published_at: published, is_sample: false },
+      assets: matched,
+      themes: matchThemes(title),
+    })
+  }
+  return { rows, sources: [...sources.values()] }
+}
+
 async function saveRows(db: any, rows: Row[]): Promise<void> {
   const { data: saved, error } = await db.from('articles').upsert(rows.map((r) => r.article), { onConflict: 'url' }).select('id,url')
   if (error) throw error
@@ -334,7 +412,32 @@ async function saveRows(db: any, rows: Row[]): Promise<void> {
   if (at.length) await db.from('article_themes').upsert(at, { onConflict: 'article_id,theme_id', ignoreDuplicates: true })
 }
 
-async function run(): Promise<Record<string, unknown>> {
+async function runGdelt(db: any, assets: AssetRef[], ua: string): Promise<Record<string, unknown>> {
+  const report: Record<string, unknown> = {}
+  const stocks = assets.filter((a) => (a as any).kind !== 'forex')
+  let total = 0
+  for (const q of GDELT_QUERIES) {
+    try {
+      const res = await fetch(gdeltUrl(q.query), { headers: { 'User-Agent': ua } })
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const { rows, sources } = gdeltRows(parseGdelt(await res.text()), stocks)
+      if (rows.length) {
+        const { error } = await db.from('sources').upsert(sources, { onConflict: 'id', ignoreDuplicates: true })
+        if (error) throw error
+        await saveRows(db, rows)
+      }
+      report[q.label] = rows.length
+      total += rows.length
+    } catch (e) {
+      report[q.label] = `erro: ${(e as Error).message}`
+    }
+    await new Promise((r) => setTimeout(r, 5500)) // limite do GDELT: 1 pedido a cada 5 s
+  }
+  report.total = total
+  return report
+}
+
+async function run(job = ''): Promise<Record<string, unknown>> {
   // @ts-ignore: carregado só no Deno
   const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2') // eslint-disable-line import/no-unresolved
   // @ts-ignore: Deno
@@ -343,6 +446,7 @@ async function run(): Promise<Record<string, unknown>> {
   const ua = userAgent(env.get('INGEST_CONTACT'))
   const { data: assetRows } = await db.from('assets').select('slug,symbol,name,aliases,kind,cik')
   const assets: AssetRef[] = (assetRows ?? []).map((a: any) => ({ ...a, aliases: a.aliases ?? [] }))
+  if (job === 'gdelt') return { gdelt: await runGdelt(db, assets, ua) }
   const report: Record<string, unknown> = {}
   for (const feed of FEEDS) {
     try {
@@ -404,4 +508,4 @@ async function run(): Promise<Record<string, unknown>> {
 }
 
 // @ts-ignore: só existe no Deno
-if (typeof Deno !== 'undefined') Deno.serve(async () => new Response(JSON.stringify(await run()), { headers: { 'content-type': 'application/json' } }))
+if (typeof Deno !== 'undefined') Deno.serve(async (req: Request) => new Response(JSON.stringify(await run(new URL(req.url).searchParams.get('job') ?? '')), { headers: { 'content-type': 'application/json' } }))

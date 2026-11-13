@@ -34,3 +34,10 @@ A função `ingest-news` também lê o calendário oficial do BLS (`bls.ics`) e 
 
 ## Notícias de empresas (8-K da SEC, acrescentado em 2026-11-13)
 Basta voltar a colar `supabase/functions/ingest-news/index.ts` na função e fazer Deploy (sem migração nova). No teste (Invoke) aparece `sec-8k` com o número de artigos; só surgem filings recentes (14 dias) com itens relevantes, como o 5.02 (saída ou entrada de CEO/administradores). O segredo `INGEST_CONTACT` tem de estar definido, porque a SEC exige contacto no User-Agent.
+
+## Notícias gerais importantes (GDELT, acrescentado em 2026-11-13)
+- A `ingest-news` com `?job=gdelt` pergunta ao GDELT (índice aberto de notícias, sem chave, 1 pedido a cada 5 s) por acontecimentos que mexem com empresas: saída de CEO, falência, regulação, fusões, resultados e movimentos fortes. Seis perguntas, janela de 3 horas, só inglês.
+- Só ficam as notícias cujo título menciona uma das empresas da tabela `assets`. Guardamos título, fonte (domínio, criada em `sources` como `web-<domínio>`), data e link; sem excerto.
+- Fiabilidade por domínio: Reuters, Bloomberg, WSJ, FT, AP, CNBC = nível 1; media conhecida = 2; o resto = 3.
+- Agendamento: `agendar_gdelt.sql` (de 15 em 15 min). Teste manual: Invoke com `?job=gdelt`.
+- Limites: o GDELT tem atraso de alguns minutos a ~1 h; falsos positivos para nomes comuns (Apple, Target, Visa); não há garantia de licença de redistribuição, por isso só mostramos título e link.

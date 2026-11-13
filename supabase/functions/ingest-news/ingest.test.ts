@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, parseIcs, blsRows, sec8kRows, sec8kUrl, sec8kCurrentRows, sec8kCurrentUrl, zonedToUtc, type AssetRef, type FeedConfig } from './index'
+import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, parseIcs, blsRows, sec8kRows, sec8kUrl, sec8kCurrentRows, sec8kCurrentUrl, zonedToUtc, type AssetRef, type FeedConfig, GDELT_QUERIES, domainTier, gdeltDate, gdeltRows, gdeltSourceId, gdeltUrl, parseGdelt } from './index'
 
 const rss = `<?xml version="1.0"?><rss version="2.0"><channel>
 <item><title><![CDATA[Fed holds interest rate &amp; signals patience]]></title>
@@ -185,4 +185,66 @@ test('sec8kCurrentRows: feed global só guarda empresas do universo (por CIK) co
   assert.ok(rows[0].article.title.includes('departure or appointment'))
   assert.deepEqual(sec8kCurrentRows(edgarAll, assets, new Date('2026-11-13T12:00:00Z')), []) // sem CIK, nada
   assert.ok(sec8kCurrentUrl(100).includes('start=100&count=100'))
+})
+
+// ---------- GDELT: notícias gerais importantes ----------
+
+const GD_ASSETS: AssetRef[] = [
+  { slug: 'nvda', symbol: 'NVDA', name: 'NVIDIA', aliases: ['NVIDIA Corporation'] },
+  { slug: 'aapl', symbol: 'AAPL', name: 'Apple', aliases: [] },
+]
+const GD_NOW = new Date('2026-11-13T19:40:00Z')
+
+test('gdelt: pedido leva a pergunta, só inglês, janela curta e JSON', () => {
+  const url = new URL(gdeltUrl('("CEO" OR "chief executive")'))
+  assert.equal(url.origin + url.pathname, 'https://api.gdeltproject.org/api/v2/doc/doc')
+  assert.equal(url.searchParams.get('mode'), 'ArtList')
+  assert.equal(url.searchParams.get('format'), 'json')
+  assert.equal(url.searchParams.get('timespan'), '3h')
+  assert.ok(url.searchParams.get('query')!.endsWith('sourcelang:english'))
+  assert.ok(GDELT_QUERIES.length >= 5 && GDELT_QUERIES.every((q) => q.query.includes('OR')))
+})
+
+test('gdelt: resposta de limite de pedidos (texto) dá erro legível, JSON vazio dá lista vazia', () => {
+  assert.throws(() => parseGdelt('Please limit requests to one every 5 seconds.'), /limit requests/)
+  assert.deepEqual(parseGdelt('{}'), [])
+  assert.equal(parseGdelt('{"articles":[{"url":"https://a.com/x","title":"t","seendate":"20261113T193000Z","domain":"a.com"}]}').length, 1)
+})
+
+test('gdelt: data no formato do GDELT', () => {
+  assert.equal(gdeltDate('20261113T193000Z'), '2026-11-13T19:30:00.000Z')
+  assert.equal(gdeltDate('lixo'), null)
+})
+
+test('gdelt: só entram notícias que mencionam uma empresa nossa, sem duplicados, recentes e com fonte criada', () => {
+  const art = (url: string, title: string, seendate = '20261113T193000Z', domain = 'www.reuters.com') => ({ url, title, seendate, domain })
+  const { rows, sources } = gdeltRows(
+    [
+      art('https://www.reuters.com/a', 'NVIDIA CEO Jensen Huang resigns, shares fall'),
+      art('https://www.reuters.com/a', 'NVIDIA CEO Jensen Huang resigns, shares fall'), // duplicado
+      art('https://blog.example.org/b', 'Local baker steps down after thirty years', '20261113T190000Z', 'blog.example.org'), // sem empresa
+      art('https://www.reuters.com/c', 'Apple chief executive steps down in surprise move', '20261110T100000Z'), // antiga
+      art('https://news.small-site.io/d', 'Apple to acquire AI startup in $2 billion deal', '20261113T194000Z', 'news.small-site.io'),
+      art('https://x.com/e', 'Curto'), // título curto
+      art('javascript:alert(1)', 'NVIDIA título com ligação inválida para teste'),
+    ],
+    GD_ASSETS,
+    GD_NOW,
+  )
+  assert.deepEqual(rows.map((r) => r.article.url), ['https://www.reuters.com/a', 'https://news.small-site.io/d'])
+  assert.deepEqual(rows[0].assets, ['nvda'])
+  assert.equal(rows[0].article.type, 'news')
+  assert.equal(rows[0].article.summary, null, 'sem excerto de fontes não oficiais')
+  assert.deepEqual(
+    sources.map((s) => [s.id, s.tier]),
+    [['web-reuters.com', 1], ['web-news.small-site.io', 3]],
+  )
+})
+
+test('gdelt: níveis de fiabilidade por domínio', () => {
+  assert.equal(domainTier('www.reuters.com'), 1)
+  assert.equal(domainTier('uk.reuters.com'), 1)
+  assert.equal(domainTier('www.marketwatch.com'), 2)
+  assert.equal(domainTier('random-blog.net'), 3)
+  assert.equal(gdeltSourceId('WWW.Reuters.com'), 'web-reuters.com')
 })
