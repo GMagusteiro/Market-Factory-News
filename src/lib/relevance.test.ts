@@ -64,6 +64,7 @@ test('notícias do ativo incluem as ligadas por tema, marcadas como tal', () => 
 
   assert.equal(themed.length, 3, 'as 3 notícias da história dos ímanes');
   assert.ok(themed.every((entry) => entry.theme?.slug === 'terras-raras'));
+  assert.ok(themed.every((entry) => entry.viaAssets?.map((a) => a.slug).join() === 'mp'), 'diz que ativo explica a ligação');
   assert.ok(direct.length > 0, 'as notícias normais da empresa continuam lá');
 });
 

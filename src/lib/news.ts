@@ -27,7 +27,12 @@ export function newsForAssets(list: Asset[], range: DateRange | null): NewsEntry
 
     const themeSlug = article.themes.find((slug) => themeSlugs.has(slug));
     if (themeSlug) {
-      entries.push({ article, relation: 'theme', theme: getTheme(themeSlug) });
+      entries.push({
+        article,
+        relation: 'theme',
+        theme: getTheme(themeSlug),
+        viaAssets: list.filter((asset) => asset.themes.includes(themeSlug)),
+      });
     }
   }
 

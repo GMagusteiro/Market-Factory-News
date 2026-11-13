@@ -69,6 +69,8 @@ export interface NewsEntry {
   relation: Relation;
   /** Tema que fez a ligação, quando a relação é "theme". */
   theme?: Theme;
+  /** Ativos (do conjunto pedido) que pertencem a esse tema: explicam porque a notícia aparece. */
+  viaAssets?: Asset[];
 }
 
 /** Conjunto de artigos que contam o mesmo acontecimento. */

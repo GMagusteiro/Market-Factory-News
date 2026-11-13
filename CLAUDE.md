@@ -97,6 +97,9 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Migração `0009_calendario_ics.sql`: `calendar_feeds(user_id, token)` sem acesso direto; RPC `my_calendar_token()` e `reset_calendar_token()` só para autenticados.
 - Edge Function `supabase/functions/calendar-ics/index.ts` (Verify JWT desligado): token → conta → watchlist → moedas → eventos (−7/+120 dias) → ICS. Guia em `docs/CALENDARIO_ICS.md`. Interface em `/conta` (`CalendarFeedCard`, `src/lib/calendarFeed.ts`).
 
+## "Porque está ligado" (implementado)
+- `NewsEntry.viaAssets` (em `src/lib/news.ts`) diz que ativos do conjunto pedido pertencem ao tema que fez a ligação; `NewsList` mostra o botão "Porque está ligado?" com a cadeia notícia → tema → ativo e o aviso de que é automático e informativo. Nunca linguagem de recomendação.
+
 ## Legal e consentimento (implementado)
 
 - Páginas `/legal/privacidade|termos|cookies` (texto em `src/i18n/legal.ts`, pt/en/es; é texto-base, rever com um jurista antes do lançamento público). Ligações no rodapé de `Screen`. O contacto só aparece se `EXPO_PUBLIC_CONTACT_EMAIL` estiver definido (não ficar no código).

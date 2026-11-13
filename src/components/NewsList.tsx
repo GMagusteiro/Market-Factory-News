@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { Linking, Pressable, View } from 'react-native';
 
 import { getAsset, getSource } from '@/data';
 import { space } from '@/design/tokens';
 import { useI18n, useThemeName } from '@/i18n';
-import { formatDateTime } from '@/lib/format';
+import { formatDateTime, joinList } from '@/lib/format';
 import type { ArticleType, NewsEntry } from '@/lib/types';
 
 import { AppText } from './ui/AppText';
@@ -17,7 +18,8 @@ const TYPE_TONE: Record<ArticleType, BadgeTone> = {
 };
 
 function NewsItem({ entry, showAsset }: { entry: NewsEntry; showAsset: boolean }) {
-  const { article, relation, theme } = entry;
+  const { article, relation, theme, viaAssets } = entry;
+  const [why, setWhy] = useState(false);
   const { t, locale } = useI18n();
   const themeName = useThemeName();
   const source = getSource(article.sourceId);
@@ -44,6 +46,29 @@ function NewsItem({ entry, showAsset }: { entry: NewsEntry; showAsset: boolean }
           <AppText variant="small" tone="muted">
             {t('news.themeNote')}
           </AppText>
+        ) : null}
+        {relation === 'theme' && theme && viaAssets?.length ? (
+          <View style={{ gap: space.xs }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ expanded: why }}
+              onPress={() => setWhy((open) => !open)}>
+              <AppText variant="small" tone="primary">
+                {why ? t('news.why.hide') : t('news.why')}
+              </AppText>
+            </Pressable>
+            {why ? (
+              <View style={{ gap: space.xs }}>
+                <AppText variant="small">1. {t('news.why.step1', { theme: themeName(theme) })}</AppText>
+                <AppText variant="small">
+                  2. {t('news.why.step2', { assets: joinList(viaAssets.map((asset) => asset.name), locale) })}
+                </AppText>
+                <AppText variant="small" tone="muted">
+                  {t('news.why.method')} {t('story.disclaimer')}
+                </AppText>
+              </View>
+            ) : null}
+          </View>
         ) : null}
       </Card>
     </Pressable>
