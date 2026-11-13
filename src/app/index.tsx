@@ -22,9 +22,9 @@ const WEEK = 7 * 24 * 60 * 60 * 1000;
 
 export function generateMetadata(): Metadata {
   return {
-    title: 'MarketLens: notícias de ações e forex por ativo e período',
+    title: 'MarketLens: stock and forex news by asset and period',
     description:
-      'Escolhe um ativo (ação ou par forex), define o período e vê as notícias relevantes com a fonte e o tipo de cada artigo, ao lado do calendário económico.',
+      'Pick an asset (stock or forex pair), set the period and see the relevant news with the source and type of each article, next to the economic calendar.',
   };
 }
 

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import { detectLang, translate } from './index';
+import { DEFAULT_LANG, isLang, translate } from './index';
 import { messages, type Lang, type MessageKey } from './messages';
 
 const LANGS: Lang[] = ['pt', 'en', 'es'];
@@ -29,9 +29,9 @@ test('translate substitui os parâmetros e deixa os desconhecidos visíveis', ()
   assert.equal(translate('pt', 'nav.watchlistN'), 'Watchlist ({n})');
 });
 
-test('detectLang escolhe o primeiro idioma suportado, senão português', () => {
-  assert.equal(detectLang(['en-US', 'pt-PT']), 'en');
-  assert.equal(detectLang(['fr-FR', 'es-MX']), 'es');
-  assert.equal(detectLang(['zh-CN']), 'pt');
-  assert.equal(detectLang([]), 'pt');
-});
+test('o idioma por omissão é inglês e só aceita pt, en, es', () => {
+  assert.equal(DEFAULT_LANG, 'en');
+  assert.equal(isLang('es'), true);
+  assert.equal(isLang('zh'), false);
+})
+

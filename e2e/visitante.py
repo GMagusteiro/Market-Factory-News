@@ -1,6 +1,7 @@
 import re, sys
 from playwright.sync_api import sync_playwright, expect
 BASE = "http://localhost:3000"
+PT_STATE = {"cookies": [], "origins": [{"origin": BASE, "localStorage": [{"name": "marketlens.lang.v1", "value": "pt"}]}]}
 results = []
 def check(n, c, d=""):
     results.append(bool(c)); print(("PASS " if c else "FAIL ") + n + (f"  [{d}]" if d else ""))
@@ -8,7 +9,7 @@ def go(pg, url):
     pg.goto(url); pg.wait_for_load_state("networkidle"); pg.wait_for_timeout(600)
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path="/usr/bin/google-chrome", headless=True, args=["--no-sandbox"])
-    pg = b.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT").new_page()
+    pg = b.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT", storage_state=PT_STATE).new_page()
     errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
     go(pg, BASE + "/")

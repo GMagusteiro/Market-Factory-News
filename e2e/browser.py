@@ -3,6 +3,7 @@ import sys
 from playwright.sync_api import sync_playwright, expect
 
 BASE = "http://localhost:3000"
+PT_STATE = {"cookies": [], "origins": [{"origin": BASE, "localStorage": [{"name": "marketlens.lang.v1", "value": "pt"}]}]}
 results = []
 
 
@@ -24,7 +25,7 @@ def count_in_period(page):
 
 with sync_playwright() as p:
     browser = p.chromium.launch(executable_path="/usr/bin/google-chrome", headless=True, args=["--no-sandbox"])
-    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT")
+    ctx = browser.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT", storage_state=PT_STATE)
     page = ctx.new_page()
     errors = []
     page.on("pageerror", lambda e: errors.append(str(e)))
@@ -148,7 +149,7 @@ with sync_playwright() as p:
     check("ativo inexistente mostra mensagem", page.get_by_text("Ativo não encontrado").is_visible())
 
     # 9. Telemóvel
-    m = browser.new_context(viewport={"width": 390, "height": 844}, locale="pt-PT", is_mobile=True, has_touch=True)
+    m = browser.new_context(viewport={"width": 390, "height": 844}, locale="pt-PT", storage_state=PT_STATE, is_mobile=True, has_touch=True)
     mp = m.new_page()
     go(mp, BASE + "/ativo/aapl")
     expect(mp.get_by_role("heading", name="Apple")).to_be_visible()

@@ -190,16 +190,16 @@ export function parseIcs(ics: string): IcsEvent[] {
   return out
 }
 
-// Título em português e impacto por tabela fixa (o BLS não classifica impacto).
+// Título em inglês (idioma base do site) e impacto por tabela fixa (o BLS não classifica impacto).
 const BLS_MAP: [RegExp, string, 'low' | 'medium' | 'high'][] = [
-  [/^Employment Situation$/i, 'Emprego não agrícola e desemprego (EUA)', 'high'],
-  [/^Consumer Price Index$/i, 'Inflação (IPC) – EUA', 'high'],
-  [/^Producer Price Index$/i, 'Preços no produtor (PPI) – EUA', 'medium'],
-  [/^Job Openings and Labor Turnover Survey$/i, 'Ofertas de emprego (JOLTS) – EUA', 'medium'],
-  [/^Employment Cost Index$/i, 'Custo do trabalho (ECI) – EUA', 'medium'],
-  [/^U\.S\. Import and Export Price Indexes$/i, 'Preços de importação e exportação – EUA', 'low'],
-  [/^Productivity and Costs/i, 'Produtividade e custos – EUA', 'low'],
-  [/^Real Earnings$/i, 'Rendimentos reais – EUA', 'low'],
+  [/^Employment Situation$/i, 'Nonfarm payrolls and unemployment (US)', 'high'],
+  [/^Consumer Price Index$/i, 'Inflation (CPI) – US', 'high'],
+  [/^Producer Price Index$/i, 'Producer prices (PPI) – US', 'medium'],
+  [/^Job Openings and Labor Turnover Survey$/i, 'Job openings (JOLTS) – US', 'medium'],
+  [/^Employment Cost Index$/i, 'Employment cost index (ECI) – US', 'medium'],
+  [/^U\.S\. Import and Export Price Indexes$/i, 'Import and export prices – US', 'low'],
+  [/^Productivity and Costs/i, 'Productivity and costs – US', 'low'],
+  [/^Real Earnings$/i, 'Real earnings – US', 'low'],
 ]
 
 export function blsToRow(ev: IcsEvent): CalendarRow {
@@ -207,7 +207,7 @@ export function blsToRow(ev: IcsEvent): CalendarRow {
   return {
     id: `bls-${ev.uid}`,
     title: hit ? hit[1] : `${ev.summary} (BLS)`,
-    country: 'Estados Unidos',
+    country: 'United States',
     currency: 'USD',
     impact: hit ? hit[2] : 'low',
     starts_at: ev.startsAt.toISOString(),

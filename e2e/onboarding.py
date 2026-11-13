@@ -1,6 +1,7 @@
 import sys
 from playwright.sync_api import sync_playwright
 BASE = "http://localhost:3000"
+PT_STATE = {"cookies": [], "origins": [{"origin": BASE, "localStorage": [{"name": "marketlens.lang.v1", "value": "pt"}]}]}
 results = []
 def check(n, c, d=""):
     results.append(bool(c)); print(("PASS " if c else "FAIL ") + n + (f"  [{d}]" if d else ""))
@@ -8,7 +9,7 @@ def go(pg, url):
     pg.goto(url); pg.wait_for_load_state("networkidle"); pg.wait_for_timeout(600)
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path="/usr/bin/google-chrome", headless=True, args=["--no-sandbox"])
-    ctx = b.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT")
+    ctx = b.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT", storage_state=PT_STATE)
     pg = ctx.new_page(); errs = []; posts = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
     pg.on("request", lambda r: posts.append(r.url) if "posthog" in r.url else None)
@@ -33,7 +34,7 @@ with sync_playwright() as p:
     go(pg, BASE + "/")
     check("convite desaparece depois de concluído", pg.get_by_text("Começa pelos teus ativos").count() == 0)
     # dispensar persiste
-    ctx2 = b.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT"); pg2 = ctx2.new_page()
+    ctx2 = b.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT", storage_state=PT_STATE); pg2 = ctx2.new_page()
     go(pg2, BASE + "/")
     pg2.get_by_role("button", name="Agora não").click(); pg2.wait_for_timeout(300)
     go(pg2, BASE + "/")

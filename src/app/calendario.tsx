@@ -23,8 +23,8 @@ const DAY = 24 * 60 * 60 * 1000;
 
 export function generateMetadata(): Metadata {
   return {
-    title: 'Calendário económico | MarketLens',
-    description: 'Calendário económico com os eventos macro por data, moeda e impacto.',
+    title: 'Economic calendar | MarketLens',
+    description: 'Economic calendar with macro events by date, currency and impact.',
   };
 }
 

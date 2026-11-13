@@ -15,6 +15,9 @@ export { LANGS, type Lang, type MessageKey };
 
 const STORAGE_KEY = 'marketlens.lang.v1';
 
+/** Idioma por omissão do site: inglês. Só muda se a pessoa escolher outro no seletor. */
+export const DEFAULT_LANG: Lang = 'en';
+
 export type Params = Record<string, string | number>;
 
 /** Substitui {nome} pelos valores. Pura, para poder ser testada. */
@@ -29,15 +32,6 @@ export function translate(lang: Lang, key: MessageKey, params?: Params): string 
 export const isLang = (value: unknown): value is Lang =>
   value === 'pt' || value === 'en' || value === 'es';
 
-/** Idioma preferido do browser: pt, en ou es; senão português. */
-export function detectLang(languages: readonly string[]): Lang {
-  for (const tag of languages) {
-    const base = tag.toLowerCase().split('-')[0];
-    if (isLang(base)) return base;
-  }
-  return 'pt';
-}
-
 interface I18nValue {
   lang: Lang;
   /** Código para Intl (datas, listas). */
@@ -49,8 +43,8 @@ interface I18nValue {
 const I18nContext = createContext<I18nValue | null>(null);
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
-  // Começa sempre em português (igual ao HTML estático); depois ajusta ao guardado ou ao browser.
-  const [lang, setLangState] = useState<Lang>('pt');
+  // Começa sempre em inglês (igual ao HTML estático); depois usa a escolha guardada, se houver.
+  const [lang, setLangState] = useState<Lang>(DEFAULT_LANG);
 
   useEffect(() => {
     let cancelled = false;
@@ -58,9 +52,6 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       .then((stored) => {
         if (cancelled) return;
         if (isLang(stored)) setLangState(stored);
-        else if (typeof navigator !== 'undefined') {
-          setLangState(detectLang(navigator.languages?.length ? navigator.languages : [navigator.language]));
-        }
       })
       .catch(() => {});
     return () => {
@@ -80,7 +71,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const value = useMemo<I18nValue>(
     () => ({
       lang,
-      locale: LANGS.find((l) => l.code === lang)?.locale ?? 'pt-PT',
+      locale: LANGS.find((l) => l.code === lang)?.locale ?? 'en-GB',
       setLang,
       t: (key, params) => translate(lang, key, params),
     }),

@@ -26,15 +26,15 @@ const dayKeyFormat = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit',
 });
 
-export const formatDateTime = (iso: string, locale = 'pt-PT') =>
+export const formatDateTime = (iso: string, locale = 'en-GB') =>
   formatter(locale, 'dateTime').format(new Date(iso));
-export const formatDay = (iso: string, locale = 'pt-PT') =>
+export const formatDay = (iso: string, locale = 'en-GB') =>
   formatter(locale, 'day').format(new Date(iso));
-export const formatTime = (iso: string, locale = 'pt-PT') =>
+export const formatTime = (iso: string, locale = 'en-GB') =>
   formatter(locale, 'time').format(new Date(iso));
 /** Chave AAAA-MM-DD do dia (no fuso de Lisboa), para agrupar eventos. */
 export const dayKey = (iso: string) => dayKeyFormat.format(new Date(iso));
 
 /** "EUR e USD" / "EUR and USD" / "EUR y USD", conforme o idioma. */
-export const joinList = (items: string[], locale = 'pt-PT') =>
+export const joinList = (items: string[], locale = 'en-GB') =>
   new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }).format(items);

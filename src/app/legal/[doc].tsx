@@ -18,7 +18,7 @@ export async function generateStaticParams(): Promise<Record<string, string>[]> 
 
 export function generateMetadata(_request: unknown, params: Record<string, string | string[]>): Metadata {
   const id = String(params.doc) as LegalDocId;
-  return { title: `${legal.pt[id]?.title ?? 'Legal'} | MarketLens` };
+  return { title: `${legal.en[id]?.title ?? 'Legal'} | MarketLens` };
 }
 
 export default function LegalScreen() {

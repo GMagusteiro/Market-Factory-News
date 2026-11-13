@@ -116,10 +116,10 @@ test('parseIcs: fuso US-Eastern, dobra de linhas e ignora dia inteiro', () => {
   assert.equal(ev[2].summary, 'Metropolitan Area Employment and Unemployment (Monthly)')
 })
 
-test('blsRows: janela de datas, título em português, impacto e id estável', () => {
+test('blsRows: janela de datas, título em inglês, impacto e id estável', () => {
   const rows = blsRows(ICS, new Date('2026-11-12T12:00:00Z'))
   assert.deepEqual(rows.map((r) => r.id), ['bls-aaa', 'bls-ccc']) // bbb está a mais de 120 dias; eee é antigo
-  assert.equal(rows[0].title, 'Inflação (IPC) – EUA')
+  assert.equal(rows[0].title, 'Inflation (CPI) – US')
   assert.equal(rows[0].impact, 'high')
   assert.equal(rows[1].impact, 'low')
   assert.match(rows[1].title, /\(BLS\)$/)

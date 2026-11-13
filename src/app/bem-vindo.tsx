@@ -16,7 +16,7 @@ import { useOnboarding } from '@/state/onboarding';
 import { useWatchlist } from '@/state/watchlist';
 
 export function generateMetadata(): Metadata {
-  return { title: 'Bem-vindo | MarketLens', robots: 'noindex' };
+  return { title: 'Welcome | MarketLens', robots: 'noindex' };
 }
 
 export default function WelcomeScreen() {

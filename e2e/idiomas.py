@@ -8,7 +8,13 @@ def go(pg, url):
     pg.goto(url); pg.wait_for_load_state("networkidle"); pg.wait_for_timeout(600)
 with sync_playwright() as p:
     b = p.chromium.launch(executable_path="/usr/bin/google-chrome", headless=True, args=["--no-sandbox"])
-    # Browser em inglês: deteta sozinho
+    # Browser em português: o site abre em inglês na mesma (inglês é o idioma base)
+    pt = b.new_context(viewport={"width": 1280, "height": 900}, locale="pt-PT").new_page()
+    go(pt, BASE + "/")
+    check("browser em português: site abre em inglês", pt.get_by_role("heading", name="Stock and forex news, by asset and period").is_visible())
+    check("html lang = en por defeito", pt.evaluate("document.documentElement.lang") == "en")
+    check("calendário abre em inglês", (go(pt, BASE + "/calendario") or True) and pt.get_by_role("heading", name="Economic calendar").is_visible())
+    # Browser em inglês
     ctx = b.new_context(viewport={"width": 1280, "height": 900}, locale="en-GB")
     pg = ctx.new_page(); errs = []
     pg.on("pageerror", lambda e: errs.append(str(e)))
@@ -41,7 +47,7 @@ with sync_playwright() as p:
     # Telemóvel: o seletor cabe no ecrã
     m = b.new_context(viewport={"width": 390, "height": 844}, locale="es-ES", is_mobile=True, has_touch=True).new_page()
     go(m, BASE + "/")
-    check("telemóvel: deteta espanhol", m.get_by_role("heading", name=re.compile("Noticias de acciones")).is_visible())
+    check("telemóvel com browser em espanhol: abre em inglês", m.get_by_role("heading", name=re.compile("Stock and forex news")).is_visible())
     check("telemóvel: sem scroll horizontal", not m.evaluate("document.documentElement.scrollWidth > document.documentElement.clientWidth"))
     m.screenshot(path="/tmp/shots/31_es_mobile.png")
     b.close()

@@ -99,9 +99,9 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Analytics sem SDK: `src/lib/analytics.ts` (POST ao PostHog, só com consentimento aceite e `EXPO_PUBLIC_POSTHOG_KEY`) + `src/state/analytics.tsx` (`track()`, identificador anónimo só depois de aceitar). Eventos: `app_opened`, `onboarding_completed`, `asset_search_performed`. Sem chave, nada é enviado.
 - Sentry: **por fazer** (precisa de DSN do Gonçalo; ligar só com consentimento).
 
-## Idiomas (pt, en, es)
+## Idiomas (pt, en, es). Inglês é o idioma base
 
 - Textos em `src/i18n/messages.ts` (português define as chaves; en e es têm de as ter todas, o TypeScript e `src/i18n/i18n.test.ts` verificam). Usar `useI18n()` (`t`, `locale`) em vez de texto fixo; datas via `src/lib/format.ts` com o `locale`.
-- Português é o idioma de arranque (igual ao HTML estático); depois usa o guardado ou o do browser. Seletor PT/EN/ES no menu. `document.documentElement.lang` acompanha.
+- **Inglês é o idioma por omissão** (decisão do Gonçalo, 2026-11-13): HTML estático, títulos de página e eventos do calendário em inglês. Não há deteção do idioma do browser; só muda se a pessoa escolher PT/ES no seletor (guardado em `marketlens.lang.v1`). Os dados de exemplo locais (`src/data/*.json`) continuam em português, são temporários. `document.documentElement.lang` acompanha.
 - Fora do âmbito por agora: títulos de notícias e eventos do calendário ficam no idioma de origem; `generateMetadata` (título/descrição no HTML estático) fica em português; sem endereços por idioma (`/en`).
-- Testes de browser: `e2e/idiomas.py` (build sem Supabase).
+- Testes de browser: `e2e/idiomas.py` (build sem Supabase). Os testes e2e em português fixam o idioma com `PT_STATE` (localStorage).

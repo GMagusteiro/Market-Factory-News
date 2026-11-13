@@ -20,25 +20,25 @@ const row = (id: string, title: string, country: string, currency: string, when:
   `(${q(id)}, ${q(title)}, ${q(country)}, ${q(currency)}, 'high', ${q(when.toISOString())}, false)`;
 
 const rows = [
-  ...FOMC.map((d) => row(`fed-fomc-${d}`, 'Decisão de taxas de juro (Fed, FOMC)', 'Estados Unidos', 'USD', zonedToUtc(d, '14:00', 'America/New_York'))),
-  ...BOE.map((d) => row(`boe-mpc-${d}`, 'Decisão de taxas de juro (Banco de Inglaterra)', 'Reino Unido', 'GBP', zonedToUtc(d, '12:00', 'Europe/London'))),
+  ...FOMC.map((d) => row(`fed-fomc-${d}`, 'Interest rate decision (Fed, FOMC)', 'United States', 'USD', zonedToUtc(d, '14:00', 'America/New_York'))),
+  ...BOE.map((d) => row(`boe-mpc-${d}`, 'Interest rate decision (Bank of England)', 'United Kingdom', 'GBP', zonedToUtc(d, '12:00', 'Europe/London'))),
 ];
 
 const sql = `-- 0005: datas oficiais de decisão de taxas (Fed e Banco de Inglaterra). Gerado por scripts/gen-calendar.ts.
 -- As datas de 2027 da Fed são provisórias até serem confirmadas. Repetir o script corrige-as (upsert por id).
 insert into public.calendar_events (id, title, country, currency, impact, starts_at, is_sample) values
   ${rows.join(',\n  ')}
-on conflict (id) do update set title = excluded.title, starts_at = excluded.starts_at;
+on conflict (id) do update set title = excluded.title, country = excluded.country, starts_at = excluded.starts_at;
 `;
 
 writeFileSync(new URL('../supabase/migrations/0005_calendario_bancos_centrais.sql', import.meta.url), sql);
 console.log(`${rows.length} eventos escritos`);
 
-const ecbRows = ECB.map((d) => row(`bce-gc-${d}`, 'Decisão de taxas de juro (BCE)', 'Zona Euro', 'EUR', zonedToUtc(d, '14:15', 'Europe/Berlin')));
+const ecbRows = ECB.map((d) => row(`bce-gc-${d}`, 'Interest rate decision (ECB)', 'Euro Area', 'EUR', zonedToUtc(d, '14:15', 'Europe/Berlin')));
 const ecbSql = `-- 0006: datas oficiais de decisão de taxas do BCE. Gerado por scripts/gen-calendar.ts.
 insert into public.calendar_events (id, title, country, currency, impact, starts_at, is_sample) values
   ${ecbRows.join(',\n  ')}
-on conflict (id) do update set title = excluded.title, starts_at = excluded.starts_at;
+on conflict (id) do update set title = excluded.title, country = excluded.country, starts_at = excluded.starts_at;
 `;
 writeFileSync(new URL('../supabase/migrations/0006_calendario_bce.sql', import.meta.url), ecbSql);
 console.log(`${ecbRows.length} eventos do BCE escritos`);
