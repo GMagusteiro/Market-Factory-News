@@ -83,13 +83,35 @@ function escapeRe(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
+type Matcher = { slug: string; names: RegExp[]; lowerNames: string[]; symbol: RegExp | null; symbolLower: string }
+// Compila as expressões uma única vez por lista de ativos (com 500+ empresas, compilar por artigo esgotava o CPU da função).
+const matcherCache = new WeakMap<AssetRef[], Matcher[]>()
+
+function matchersFor(assets: AssetRef[]): Matcher[] {
+  let m = matcherCache.get(assets)
+  if (m) return m
+  m = assets.map((a) => {
+    const names = [a.name, ...a.aliases].filter((n) => n.length >= 3)
+    return {
+      slug: a.slug,
+      names: names.map((n) => new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(n)}($|[^\\p{L}\\p{N}])`, 'iu')),
+      lowerNames: names.map((n) => n.toLowerCase()),
+      // símbolo só em maiúsculas e com 3+ letras, para evitar falsos positivos
+      symbol: a.symbol.length >= 3 ? new RegExp(`(^|[^A-Za-z0-9])${escapeRe(a.symbol)}($|[^A-Za-z0-9])`) : null,
+      symbolLower: a.symbol.toLowerCase(),
+    }
+  })
+  matcherCache.set(assets, m)
+  return m
+}
+
 export function matchAssets(text: string, assets: AssetRef[]): string[] {
   const hits: string[] = []
-  for (const a of assets) {
-    const names = [a.name, ...a.aliases].filter((n) => n.length >= 3)
-    const byName = names.some((n) => new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRe(n)}($|[^\\p{L}\\p{N}])`, 'iu').test(text))
-    // símbolo só em maiúsculas e com 3+ letras, para evitar falsos positivos
-    const bySymbol = a.symbol.length >= 3 && new RegExp(`(^|[^A-Za-z0-9])${escapeRe(a.symbol)}($|[^A-Za-z0-9])`).test(text)
+  const lower = text.toLowerCase()
+  for (const a of matchersFor(assets)) {
+    // pré-filtro barato: só corre a expressão se o texto contiver o nome ou o símbolo
+    const byName = a.names.some((re, i) => lower.includes(a.lowerNames[i]) && re.test(text))
+    const bySymbol = a.symbol !== null && lower.includes(a.symbolLower) && a.symbol.test(text)
     if (byName || bySymbol) hits.push(a.slug)
   }
   return hits
