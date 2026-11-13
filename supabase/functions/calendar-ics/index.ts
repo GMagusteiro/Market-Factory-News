@@ -134,7 +134,7 @@ export async function handle(request: Request): Promise<Response> {
   return new Response(body, {
     headers: {
       'content-type': 'text/calendar; charset=utf-8',
-      'cache-control': 'private, max-age=900',
+      'cache-control': 'private, no-cache',
       'content-disposition': 'inline; filename="marketlens.ics"',
     },
   })
