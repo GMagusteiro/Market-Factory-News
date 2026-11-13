@@ -106,30 +106,38 @@ export async function ics(token: string, now = new Date()): Promise<string | nul
   const { data: feed } = await db.from('calendar_feeds').select('user_id').eq('token', token).maybeSingle()
   if (!feed) return null
 
-  const { data: items } = await db.from('watchlist_items').select('asset_slug').eq('user_id', feed.user_id)
+  const { data: items, error: itemsError } = await db.from('watchlist_items').select('asset_slug').eq('user_id', feed.user_id)
+  if (itemsError) throw new Error(`watchlist: ${itemsError.message}`)
   const slugs = (items ?? []).map((i: { asset_slug: string }) => i.asset_slug)
-  const { data: assets } = slugs.length
+  const { data: assets, error: assetsError } = slugs.length
     ? await db.from('assets').select('currencies').in('slug', slugs)
-    : { data: [] }
+    : { data: [], error: null }
+  if (assetsError) throw new Error(`assets: ${assetsError.message}`)
   const currencies = currenciesOf(assets ?? [])
   if (!currencies.length) return buildIcs([], now)
 
   const from = new Date(now.getTime() - WINDOW_BACK_DAYS * 86_400_000).toISOString()
   const to = new Date(now.getTime() + WINDOW_AHEAD_DAYS * 86_400_000).toISOString()
-  const { data: events } = await db
+  const { data: events, error: eventsError } = await db
     .from('calendar_events')
     .select('id,title,country,currency,impact,starts_at,forecast,previous')
     .in('currency', currencies)
     .gte('starts_at', from)
     .lte('starts_at', to)
     .order('starts_at')
+  if (eventsError) throw new Error(`events: ${eventsError.message}`)
   return buildIcs(events ?? [], now, currencies)
 }
 
 export async function handle(request: Request): Promise<Response> {
   const token = new URL(request.url).searchParams.get('token')
   if (!isToken(token)) return new Response('Not found', { status: 404 })
-  const body = await ics(token)
+  let body: string | null
+  try {
+    body = await ics(token)
+  } catch (e) {
+    return new Response(`Error: ${(e as Error).message}`, { status: 500 }) // mostra a causa em vez de um calendário vazio
+  }
   if (body === null) return new Response('Not found', { status: 404 })
   return new Response(body, {
     headers: {
