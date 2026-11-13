@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, parseIcs, blsRows, sec8kRows, sec8kUrl, zonedToUtc, type AssetRef, type FeedConfig } from './index'
+import { parseFeed, matchAssets, matchThemes, buildRows, normalizeUrl, shortSummary, userAgent, parseIcs, blsRows, sec8kRows, sec8kUrl, sec8kCurrentRows, sec8kCurrentUrl, zonedToUtc, type AssetRef, type FeedConfig } from './index'
 
 const rss = `<?xml version="1.0"?><rss version="2.0"><channel>
 <item><title><![CDATA[Fed holds interest rate &amp; signals patience]]></title>
@@ -169,4 +169,20 @@ test('sec8kRows: só 8-K com itens relevantes e recentes, ligados ao ativo', () 
 test('sec8kRows: página de erro da SEC (sem feed) dá zero linhas; url usa o símbolo', () => {
   assert.deepEqual(sec8kRows('<html>No matching Ticker Symbol.</html>', assets[0]), [])
   assert.ok(sec8kUrl('BRK.B').includes('CIK=BRK.B') && sec8kUrl('A B').includes('CIK=A%20B'))
+})
+
+const edgarAll = `<feed xmlns="http://www.w3.org/2005/Atom">
+<entry><title>8-K - NVIDIA CORP (0001045810) (Filer)</title><link rel="alternate" href="https://www.sec.gov/Archives/edgar/data/1045810/a-index.htm"/><summary type="html">Item 5.02: Departure of Directors</summary><updated>2026-11-12T10:00:00-05:00</updated></entry>
+<entry><title>8-K - SOME OTHER CO (0000999999) (Filer)</title><link rel="alternate" href="https://www.sec.gov/Archives/edgar/data/999999/b-index.htm"/><summary type="html">Item 5.02: Departure of Directors</summary><updated>2026-11-12T10:00:00-05:00</updated></entry>
+<entry><title>8-K - NVIDIA CORP (0001045810) (Subject)</title><link rel="alternate" href="https://www.sec.gov/Archives/edgar/data/1045810/c-index.htm"/><summary type="html">Item 7.01: Regulation FD</summary><updated>2026-11-12T11:00:00-05:00</updated></entry>
+</feed>`
+
+test('sec8kCurrentRows: feed global só guarda empresas do universo (por CIK) com itens relevantes', () => {
+  const withCik: AssetRef[] = [{ ...assets[0], cik: '1045810' }, assets[1]]
+  const rows = sec8kCurrentRows(edgarAll, withCik, new Date('2026-11-13T12:00:00Z'))
+  assert.equal(rows.length, 1)
+  assert.deepEqual(rows[0].assets, ['nvda'])
+  assert.ok(rows[0].article.title.includes('departure or appointment'))
+  assert.deepEqual(sec8kCurrentRows(edgarAll, assets, new Date('2026-11-13T12:00:00Z')), []) // sem CIK, nada
+  assert.ok(sec8kCurrentUrl(100).includes('start=100&count=100'))
 })

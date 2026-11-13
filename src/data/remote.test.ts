@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 
 import { articles, assets, calendarEvents, getAsset, localDataset, setDataset, sources, themes } from './index';
-import { mapRows, syncFromSupabase, type RemoteRows } from './remote';
+import { fetchTable, mapRows, syncFromSupabase, type RemoteRows } from './remote';
 
 /** Converte os dados locais em linhas "como se viessem do Supabase". */
 function toRows(sample: boolean): RemoteRows {
@@ -66,4 +66,23 @@ test('setDataset troca os dados lidos por getAsset; sem configuração mantém o
   assert.equal(getAsset('nvda'), undefined);
   setDataset(localDataset);
   assert.ok(getAsset('nvda'));
+});
+
+test('fetchTable lê por páginas de 1000 até acabar', async () => {
+  const total = 2300;
+  const calls: [number, number][] = [];
+  const client = {
+    from: () => ({
+      select: () => ({
+        range: async (from: number, to: number) => {
+          calls.push([from, to]);
+          const n = Math.max(0, Math.min(to, total - 1) - from + 1);
+          return { data: Array.from({ length: n }, (_, i) => ({ i: from + i })), error: null };
+        },
+      }),
+    }),
+  };
+  const rows = await fetchTable(client as never, 'articles');
+  assert.equal(rows.length, total);
+  assert.deepEqual(calls, [[0, 999], [1000, 1999], [2000, 2999]]);
 });

@@ -4,7 +4,7 @@
 
 export type FeedConfig = { sourceId: string; url: string; type: 'news' | 'opinion' | 'official' }
 export type ParsedItem = { title: string; url: string; publishedAt: string; description: string }
-export type AssetRef = { slug: string; symbol: string; name: string; aliases: string[] }
+export type AssetRef = { slug: string; symbol: string; name: string; aliases: string[]; cik?: string | null }
 
 export function userAgent(contact: string | undefined): string {
   return `Market Factory News/1.0 (${contact || 'sem-contacto'})`
@@ -155,32 +155,61 @@ export const SEC_8K_ITEMS: Record<string, string> = {
 export const sec8kUrl = (symbol: string): string =>
   `https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${encodeURIComponent(symbol)}&type=8-K&dateb=&owner=include&count=10&output=atom`
 
+function row8k(it: ParsedItem, asset: AssetRef, known: string[], codes: string[]): Row {
+  return {
+    article: {
+      source_id: 'sec',
+      type: 'official',
+      title: `${asset.name}: SEC 8-K filing on ${known.map((c) => SEC_8K_ITEMS[c]).join('; ')}`,
+      summary: `Form 8-K, items ${codes.join(', ')}.`,
+      url: it.url,
+      published_at: it.publishedAt,
+      is_sample: false,
+    },
+    assets: [asset.slug],
+    themes: [],
+  }
+}
+
+function items8k(it: ParsedItem): { known: string[]; codes: string[] } {
+  const codes = [...new Set([...it.description.matchAll(/Item\s+(\d\.\d{2})/g)].map((m) => m[1]))]
+  return { known: codes.filter((c) => c in SEC_8K_ITEMS), codes }
+}
+
+function recent(it: ParsedItem, now: Date, maxAgeDays: number): boolean {
+  const ts = new Date(it.publishedAt).getTime()
+  return ts >= now.getTime() - maxAgeDays * 86_400_000 && ts <= now.getTime() + 3_600_000
+}
+
 /** Linhas de notícia a partir do feed Atom de 8-K de uma empresa. Só filings com pelo menos um item relevante. */
 export function sec8kRows(xml: string, asset: AssetRef, now = new Date(), maxAgeDays = 14): Row[] {
   const seen = new Set<string>()
   const rows: Row[] = []
-  const limit = now.getTime() - maxAgeDays * 86_400_000
   for (const it of parseFeed(xml)) {
-    if (seen.has(it.url)) continue
+    if (seen.has(it.url) || !recent(it, now, maxAgeDays)) continue
     seen.add(it.url)
-    const ts = new Date(it.publishedAt).getTime()
-    if (ts < limit || ts > now.getTime() + 3_600_000) continue
-    const codes = [...new Set([...it.description.matchAll(/Item\s+(\d\.\d{2})/g)].map((m) => m[1]))]
-    const known = codes.filter((c) => c in SEC_8K_ITEMS)
-    if (known.length === 0) continue
-    rows.push({
-      article: {
-        source_id: 'sec',
-        type: 'official',
-        title: `${asset.name}: SEC 8-K filing on ${known.map((c) => SEC_8K_ITEMS[c]).join('; ')}`,
-        summary: `Form 8-K, items ${codes.join(', ')}.`,
-        url: it.url,
-        published_at: it.publishedAt,
-        is_sample: false,
-      },
-      assets: [asset.slug],
-      themes: [],
-    })
+    const { known, codes } = items8k(it)
+    if (known.length) rows.push(row8k(it, asset, known, codes))
+  }
+  return rows
+}
+
+/** Endereço da página `start` do feed global de 8-K (100 por página, de todas as empresas). */
+export const sec8kCurrentUrl = (start: number): string =>
+  `https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=8-K&company=&dateb=&owner=include&start=${start}&count=100&output=atom`
+
+/** Feed global: o título traz o CIK ("8-K - Apple Inc. (0000320193) (Filer)"); só ficam empresas do universo (assets com cik). */
+export function sec8kCurrentRows(xml: string, assets: AssetRef[], now = new Date(), maxAgeDays = 14): Row[] {
+  const byCik = new Map(assets.filter((a) => a.cik).map((a) => [String(a.cik).replace(/^0+/, ''), a]))
+  const seen = new Set<string>()
+  const rows: Row[] = []
+  for (const it of parseFeed(xml)) {
+    const cik = it.title.match(/\((\d{10})\)/)?.[1]?.replace(/^0+/, '')
+    const asset = cik ? byCik.get(cik) : undefined
+    if (!asset || seen.has(it.url) || !recent(it, now, maxAgeDays)) continue
+    seen.add(it.url)
+    const { known, codes } = items8k(it)
+    if (known.length) rows.push(row8k(it, asset, known, codes))
   }
   return rows
 }
@@ -290,7 +319,7 @@ async function run(): Promise<Record<string, unknown>> {
   const env = Deno.env
   const db = createClient(env.get('SUPABASE_URL')!, env.get('SUPABASE_SERVICE_ROLE_KEY')!)
   const ua = userAgent(env.get('INGEST_CONTACT'))
-  const { data: assetRows } = await db.from('assets').select('slug,symbol,name,aliases,kind')
+  const { data: assetRows } = await db.from('assets').select('slug,symbol,name,aliases,kind,cik')
   const assets: AssetRef[] = (assetRows ?? []).map((a: any) => ({ ...a, aliases: a.aliases ?? [] }))
   const report: Record<string, unknown> = {}
   for (const feed of FEEDS) {
@@ -305,20 +334,36 @@ async function run(): Promise<Record<string, unknown>> {
       report[feed.url] = `erro: ${(e as Error).message}` // um feed a falhar não pára os outros
     }
   }
-  // Relatórios 8-K por empresa (ações). Pausa curta entre pedidos: a SEC permite até 10 por segundo.
+  // Relatórios 8-K. Empresas com CIK: feed global (4 páginas de 100, as mais recentes). Sem CIK: um pedido por empresa.
+  // Pausa curta entre pedidos: a SEC permite até 10 por segundo.
   let filings = 0
   const failures: string[] = []
-  for (const a of (assetRows ?? []).filter((r: any) => r.kind === 'stock')) {
+  const pause = () => new Promise((r) => setTimeout(r, 200))
+  const stocks = (assetRows ?? []).filter((r: any) => r.kind === 'stock').map((a: any) => ({ ...a, aliases: a.aliases ?? [] }))
+  if (stocks.some((a: any) => a.cik)) {
+    for (const start of [0, 100, 200, 300]) {
+      try {
+        const res = await fetch(sec8kCurrentUrl(start), { headers: { 'User-Agent': ua, Accept: 'application/atom+xml' } })
+        if (!res.ok) throw new Error(`HTTP ${res.status}`)
+        const rows = sec8kCurrentRows(await res.text(), stocks)
+        if (rows.length) { await saveRows(db, rows); filings += rows.length }
+      } catch (e) {
+        failures.push(`global start=${start}: ${(e as Error).message}`)
+      }
+      await pause()
+    }
+  }
+  for (const a of stocks.filter((x: any) => !x.cik).slice(0, 20)) {
     try {
       const res = await fetch(sec8kUrl(a.symbol), { headers: { 'User-Agent': ua, Accept: 'application/atom+xml' } })
       if (res.ok) {
-        const rows = sec8kRows(await res.text(), { ...a, aliases: a.aliases ?? [] })
+        const rows = sec8kRows(await res.text(), a)
         if (rows.length) { await saveRows(db, rows); filings += rows.length }
       } else if (res.status !== 404) failures.push(`${a.symbol}: HTTP ${res.status}`)
     } catch (e) {
       failures.push(`${a.symbol}: ${(e as Error).message}`)
     }
-    await new Promise((r) => setTimeout(r, 200))
+    await pause()
   }
   report['sec-8k'] = failures.length ? { artigos: filings, falhas: failures } : filings
   try {

@@ -105,6 +105,10 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Logótipo `src/components/Logo.tsx` (lente + brilho coral, "Market *Factory* News", com Factory em itálico), ícones/favicon gerados em `assets/images`. O nome oficial é Market Factory News (decisão do Gonçalo, 2026-11-13); verificar marca registada antes de lançar. Chaves internas (marketlens.*) mantidas para não perder dados dos utilizadores.
 - Decisão (2026-11-13): cripto entra no produto como tipo de ativo; anúncios da Binance como fonte a confirmar.
 
+## Universo de empresas (implementado, por ativar)
+- `0011_assets_cik.sql` + função `sync-assets` (lista oficial da SEC, top N por `?limit=`) acrescentam empresas dos EUA com `cik`; `ingest-news` liga 8-K por CIK pelo feed global. Guia: `docs/MAIS_EMPRESAS.md`.
+- `src/data/remote.ts` lê as tabelas por páginas de 1000 (limite do Supabase por pedido).
+
 ## Legal e consentimento (implementado)
 
 - Páginas `/legal/privacidade|termos|cookies` (texto em `src/i18n/legal.ts`, pt/en/es; é texto-base, rever com um jurista antes do lançamento público). Ligações no rodapé de `Screen`. O contacto só aparece se `EXPO_PUBLIC_CONTACT_EMAIL` estiver definido (não ficar no código).

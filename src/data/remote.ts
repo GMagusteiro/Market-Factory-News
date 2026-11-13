@@ -106,12 +106,26 @@ const TABLES = [
 ] as const;
 
 /** Lê todas as tabelas de conteúdo (leitura pública, protegida por RLS). */
+const PAGE = 1000; // o Supabase devolve no máximo 1000 linhas por pedido
+const MAX_PAGES = 20;
+
+/** Lê uma tabela por páginas até acabar (o limite por pedido do Supabase é 1000). */
+export async function fetchTable(client: SupabaseClient, table: string): Promise<unknown[]> {
+  const all: unknown[] = [];
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const { data, error } = await client.from(table).select('*').range(page * PAGE, page * PAGE + PAGE - 1);
+    if (error) throw new Error(`${table}: ${error.message}`);
+    all.push(...(data ?? []));
+    if ((data ?? []).length < PAGE) break;
+  }
+  return all;
+}
+
 export async function fetchRows(client: SupabaseClient): Promise<RemoteRows> {
-  const results = await Promise.all(TABLES.map((table) => client.from(table).select('*').limit(5000)));
+  const results = await Promise.all(TABLES.map((table) => fetchTable(client, table)));
   const rows: Record<string, unknown[]> = {};
-  results.forEach((result, index) => {
-    if (result.error) throw new Error(`${TABLES[index]}: ${result.error.message}`);
-    rows[TABLES[index]] = result.data ?? [];
+  results.forEach((data, index) => {
+    rows[TABLES[index]] = data;
   });
   return rows as unknown as RemoteRows;
 }
