@@ -32,6 +32,8 @@ interface AuthValue {
   prefs: ProfilePrefs | null;
   /** Guarda idioma e/ou fuso na conta. Devolve uma mensagem de erro, se houver. */
   updatePrefs: (patch: Partial<ProfilePrefs>) => Promise<string | null>;
+  /** Token secreto do calendário ICS (cria-o se não existir; `reset` gera um novo). */
+  calendarToken: (reset?: boolean) => Promise<{ token: string | null; error: string | null }>;
   /** Envia a ligação de acesso por email. Devolve uma mensagem de erro, se houver. */
   signInWithEmail: (email: string) => Promise<string | null>;
   signInWithGoogle: () => Promise<string | null>;
@@ -116,6 +118,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [userId],
   );
 
+  const calendarToken = useCallback(async (reset = false) => {
+    const supabase = getSupabase();
+    if (!supabase) return { token: null, error: 'unavailable' };
+    const { data, error } = await supabase.rpc(reset ? 'reset_calendar_token' : 'my_calendar_token');
+    return error ? { token: null, error: error.message } : { token: String(data), error: null };
+  }, []);
+
   const signInWithEmail = useCallback(async (email: string) => {
     const supabase = getSupabase();
     if (!supabase) return 'unavailable';
@@ -158,12 +167,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       tier: !userId ? 'guest' : profile?.userId === userId ? profile.tier : 'free',
       prefs: profile?.userId === userId ? profile.prefs : null,
       updatePrefs,
+      calendarToken,
       signInWithEmail,
       signInWithGoogle,
       signOut,
       deleteAccount,
     }),
-    [ready, session, userId, profile, updatePrefs, signInWithEmail, signInWithGoogle, signOut, deleteAccount],
+    [ready, session, userId, profile, updatePrefs, calendarToken, signInWithEmail, signInWithGoogle, signOut, deleteAccount],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

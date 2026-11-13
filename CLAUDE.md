@@ -91,7 +91,11 @@ Qualquer pessoa usa o site/app sem registo; o registo gratuito dá acesso a mais
 - Migração `0008_perfil.sql`: `profiles.lang` ('pt'|'en'|'es') e `profiles.time_zone`; o utilizador só pode atualizar estas duas colunas na sua linha (`grant update (lang, time_zone)`); `tier` continua só do Gonçalo. Testado em `supabase/tests/acesso.test.ts`.
 - Fuso horário: guardado como `device` ou nome IANA (`src/lib/timezones.ts`), estado em `LanguageProvider` (chave local `marketlens.tz.v1`), aplicado a `src/lib/format.ts` via `setDisplayTimeZone`. Padrão: Europe/Lisbon (igual ao HTML estático).
 - `src/state/ProfileSync.tsx`: ao entrar aplica o idioma/fuso da conta (ou guarda os do dispositivo se a conta ainda não tem); depois guarda cada mudança. Definições em `/conta`.
-- Testes e2e: fazer o build com `EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_ANON_KEY=` vazios, porque o `.env` local tem as variáveis e ativaria contas e bloqueios.
+- Testes e2e: fazer o build com `EXPO_PUBLIC_SUPABASE_URL= EXPO_PUBLIC_SUPABASE_KEY=` vazios, porque o `.env` local tem as variáveis e ativaria contas e bloqueios.
+
+## Calendário ICS (implementado)
+- Migração `0009_calendario_ics.sql`: `calendar_feeds(user_id, token)` sem acesso direto; RPC `my_calendar_token()` e `reset_calendar_token()` só para autenticados.
+- Edge Function `supabase/functions/calendar-ics/index.ts` (Verify JWT desligado): token → conta → watchlist → moedas → eventos (−7/+120 dias) → ICS. Guia em `docs/CALENDARIO_ICS.md`. Interface em `/conta` (`CalendarFeedCard`, `src/lib/calendarFeed.ts`).
 
 ## Legal e consentimento (implementado)
 

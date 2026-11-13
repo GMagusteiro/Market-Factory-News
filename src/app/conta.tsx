@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import type { Metadata } from 'expo-router/server';
 import { useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { Linking, Platform, TextInput, View } from 'react-native';
 
 import { AppText } from '@/components/ui/AppText';
 import { Badge } from '@/components/ui/Badge';
@@ -11,6 +11,7 @@ import { Screen } from '@/components/ui/Screen';
 import { layout, radius, space } from '@/design/tokens';
 import { useTheme } from '@/design/useTheme';
 import { LANGS, useI18n, type MessageKey } from '@/i18n';
+import { feedUrl, googleAddUrl, webcalUrl } from '@/lib/calendarFeed';
 import { DEVICE_TIME_ZONE, TIME_ZONE_OPTIONS } from '@/lib/timezones';
 import { useAuth } from '@/state/auth';
 
@@ -102,6 +103,8 @@ export default function AccountScreen() {
             onChange={setTimeZone}
           />
         </Card>
+
+        <CalendarFeedCard />
 
         <Card>
           <AppText variant="subheading">{t('account.delete.title')}</AppText>
@@ -231,5 +234,70 @@ function ChoiceRow({
         ))}
       </View>
     </View>
+  );
+}
+
+function CalendarFeedCard() {
+  const auth = useAuth();
+  const { t } = useI18n();
+  const [url, setUrl] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function load(reset: boolean) {
+    setBusy(true);
+    setError(null);
+    const { token, error: message } = await auth.calendarToken(reset);
+    setBusy(false);
+    if (message) return setError(message === 'unavailable' ? t('account.unavailable') : message);
+    setUrl(feedUrl(process.env.EXPO_PUBLIC_SUPABASE_URL, token));
+    setCopied(false);
+  }
+
+  async function copy() {
+    if (!url) return;
+    try {
+      if (Platform.OS === 'web' && typeof navigator !== 'undefined') await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <Card>
+      <AppText variant="subheading">{t('account.cal.title')}</AppText>
+      <AppText variant="small" tone="muted">
+        {t('account.cal.body')}
+      </AppText>
+      {url ? (
+        <View style={{ gap: space.sm, marginTop: space.sm }}>
+          <AppText variant="small" selectable numberOfLines={2} style={{ fontFamily: 'monospace' }}>
+            {url}
+          </AppText>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm }}>
+            <Button label={t('account.cal.google')} onPress={() => void Linking.openURL(googleAddUrl(url))} />
+            <Button label={t('account.cal.apple')} variant="secondary" onPress={() => void Linking.openURL(webcalUrl(url))} />
+            <Button label={copied ? t('account.cal.copied') : t('account.cal.copy')} variant="secondary" onPress={copy} />
+          </View>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: space.sm, alignItems: 'center' }}>
+            <Button label={t('account.cal.reset')} variant="secondary" onPress={() => load(true)} />
+            <AppText variant="small" tone="muted">
+              {t('account.cal.resetNote')}
+            </AppText>
+          </View>
+        </View>
+      ) : (
+        <View style={{ alignSelf: 'flex-start', marginTop: space.sm }}>
+          <Button label={busy ? '…' : t('account.cal.get')} onPress={() => load(false)} />
+        </View>
+      )}
+      {error ? (
+        <AppText variant="small" accessibilityRole="alert">
+          {error}
+        </AppText>
+      ) : null}
+    </Card>
   );
 }

@@ -1,4 +1,4 @@
-// Testa as migrações 0001-0003, 0007 e 0008 num Postgres local (PGlite): perfis, nível e RLS.
+// Testa as migrações 0001-0003, 0007, 0008 e 0009 num Postgres local (PGlite): perfis, nível e RLS.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -20,12 +20,15 @@ async function setup() {
   for (const file of ['0001_init.sql', '0002_seed_exemplo.sql', '0003_contas_e_acesso.sql', '0007_calendario_aberto.sql']) {
     await db.exec(readFileSync(join(dir, file), 'utf8'));
   }
-  // O Supabase dá todos os privilégios às tabelas novas; a 0008 tem de os apertar.
-  await db.exec(`grant all on public.profiles to anon, authenticated`);
-  await db.exec(readFileSync(join(dir, '0008_perfil.sql'), 'utf8'));
+  // O Supabase dá todos os privilégios às tabelas novas; as migrações 0008 e 0009 têm de os apertar.
   await db.exec(`
     grant usage on schema public, auth to anon, authenticated;
     grant select on all tables in schema public to anon, authenticated;
+    grant all on public.profiles to anon, authenticated;
+    alter default privileges in schema public grant all on tables to anon, authenticated;`);
+  await db.exec(readFileSync(join(dir, '0008_perfil.sql'), 'utf8'));
+  await db.exec(readFileSync(join(dir, '0009_calendario_ics.sql'), 'utf8'));
+  await db.exec(`
     grant insert, delete on public.watchlist_items to authenticated;
     grant select, delete on auth.users to authenticated;
     insert into articles(id,source_id,type,title,url,published_at,is_sample) values
@@ -122,4 +125,35 @@ test('o utilizador altera o seu idioma e fuso, mas não o nível nem o perfil de
   await db.exec(`set role anon; reset request.jwt.sub`);
   await assert.rejects(() => db.query(`update profiles set lang='en'`));
   await db.exec('reset role');
+});
+
+test('token do calendário: cada conta tem o seu, é estável, repõe-se e a tabela é inacessível', async () => {
+  const db = await setup();
+  const a = (await db.query<{ id: string }>(`insert into auth.users default values returning id`)).rows[0].id;
+  const b = (await db.query<{ id: string }>(`insert into auth.users default values returning id`)).rows[0].id;
+  const token = async (who: string, fn: string) => {
+    await db.exec(`set role authenticated; set request.jwt.sub='${who}'`);
+    const row = (await db.query<{ t: string }>(`select ${fn}() t`)).rows[0].t;
+    await db.exec('reset role');
+    return row;
+  };
+  const a1 = await token(a, 'my_calendar_token');
+  assert.equal(await token(a, 'my_calendar_token'), a1); // estável
+  const b1 = await token(b, 'my_calendar_token');
+  assert.notEqual(a1, b1);
+  const a2 = await token(a, 'reset_calendar_token');
+  assert.notEqual(a2, a1);
+  assert.equal(await token(a, 'my_calendar_token'), a2);
+  assert.equal(await token(b, 'my_calendar_token'), b1); // a reposição não toca nos outros
+
+  await db.exec(`set role authenticated; set request.jwt.sub='${a}'`);
+  await assert.rejects(() => db.query(`select token from calendar_feeds`)); // sem acesso direto à tabela
+  await db.exec('reset role');
+
+  await db.exec(`set role anon; reset request.jwt.sub`);
+  await assert.rejects(() => db.query(`select my_calendar_token()`));
+  await db.exec('reset role');
+
+  await db.exec(`delete from auth.users where id='${a}'`);
+  assert.equal((await db.query(`select 1 from calendar_feeds where user_id='${a}'`)).rows.length, 0); // apagar a conta apaga o token
 });

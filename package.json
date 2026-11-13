@@ -44,7 +44,7 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "lint": "eslint .",
-    "test": "tsx --test src/lib/*.test.ts src/data/*.test.ts src/i18n/*.test.ts supabase/functions/ingest-news/*.test.ts supabase/tests/*.test.ts",
+    "test": "tsx --test src/lib/*.test.ts src/data/*.test.ts src/i18n/*.test.ts supabase/functions/ingest-news/*.test.ts supabase/functions/calendar-ics/*.test.ts supabase/tests/*.test.ts",
     "typecheck": "tsc --noEmit",
     "export:web": "expo export --platform web && cp 'dist/+not-found.html' dist/404.html"
   },
