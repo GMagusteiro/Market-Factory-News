@@ -13,6 +13,13 @@ Só guardamos **título, fonte, data, ligação para o original e um resumo curt
 | Federal Reserve | oficial | RSS em federalreserve.gov/feeds (press_all, press_monetary, speeches) | **Incluir** | Conteúdo público do governo dos EUA |
 | BCE | oficial | RSS em ecb.europa.eu/rss | **Incluir** | Reutilização permitida com menção da fonte |
 | SEC EDGAR | oficial | Atom/RSS | **Incluir** | Obriga a User-Agent identificado com contacto e máx. 10 pedidos/s |
+| Banco do Canadá | oficial | RSS 1.0 em bankofcanada.ca/content_type/press-releases/feed/ | **Incluir** (migração 0010) | Termos (bankofcanada.ca/terms): uso livre com atribuição e indicação de alterações; logótipo excluído. Verificado em 2026-11-13 |
+| Banco de Inglaterra | oficial | RSS 2.0 em bankofengland.co.uk/rss/news (válido) | **Adiar** | Direitos reservados ao Banco; a página legal só refere descarregar/ver/imprimir (OGL só para a base de dados). Pedir autorização por escrito |
+| RBA (Austrália) | oficial | RDF em rba.gov.au/rss/rss-cb-media-releases.xml (válido) | **Adiar** | Aviso de copyright reservado; confirmar se há licença que cubra títulos/ligações |
+| Tesouro dos EUA | oficial | Sem RSS (só email GovDelivery) | **Adiar** | Sem feed; possível ler a listagem HTML (conteúdo do governo dos EUA) |
+| Comissão Europeia (Press Corner) | oficial | Sem RSS próprio | **Adiar** | Sem feed oficial |
+| Eurostat | oficial | Atom da pesquisa; o feed "news releases" devolve atualizações de datasets, não comunicados | **Adiar** | Reutilização permitida com crédito, mas o feed é pouco útil e desatualizado |
+| FMI, Banco do Japão, BNS (Suíça) | oficial | RSS existe mas endereço não confirmado | **Adiar** | Rever termos e endereço antes de incluir |
 | Banco de Portugal | oficial | Sem RSS de comunicados confirmado | **Adiar** | Rever página de comunicados; possível leitura da listagem HTML (a confirmar termos) |
 | CMVM / IR de empresas | oficial | Variável | **Adiar** | Caso a caso, por empresa do universo |
 | WSJ | imprensa | feeds.content.dowjones.io | **Excluir** | Termos Dow Jones proíbem usar conteúdo de RSS em produto comercial sem consentimento escrito |
@@ -23,7 +30,7 @@ Só guardamos **título, fonte, data, ligação para o original e um resumo curt
 | Seeking Alpha / blogs | opinião | RSS | **Adiar** | Peso baixo; termos por verificar |
 | Jornal de Negócios, ECO, Expresso | PT | RSS não confirmado | **Adiar** | Contactar para parceria/autorização |
 
-Consequência: a V1 arranca só com **fontes oficiais** (Fed, BCE, SEC). É menos "notícia" e mais "comunicados", mas é sólido do ponto de vista legal e gratuito. Cobertura noticiosa ampla exige licenças ou parcerias (custo) — decisão de negócio para a Fase 5.
+Consequência: a V1 arranca só com **fontes oficiais** (Fed, BCE, SEC e, desde 2026-11-13, Banco do Canadá). É menos "notícia" e mais "comunicados", mas é sólido do ponto de vista legal e gratuito. Cobertura noticiosa ampla exige licenças ou parcerias (custo) — decisão de negócio para a Fase 5.
 
 ## Calendário económico
 

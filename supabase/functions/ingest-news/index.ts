@@ -15,6 +15,7 @@ export const FEEDS: FeedConfig[] = [
   { sourceId: 'fed', url: 'https://www.federalreserve.gov/feeds/press_monetary.xml', type: 'official' },
   { sourceId: 'bce', url: 'https://www.ecb.europa.eu/rss/press.html', type: 'official' },
   { sourceId: 'sec', url: 'https://www.sec.gov/news/pressreleases.rss', type: 'official' },
+  { sourceId: 'boc', url: 'https://www.bankofcanada.ca/content_type/press-releases/feed/', type: 'official' },
 ]
 
 export const THEME_KEYWORDS: Record<string, string[]> = {

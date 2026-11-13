@@ -128,3 +128,19 @@ test('blsRows: janela de datas, título em inglês, impacto e id estável', () =
 test('zonedToUtc da função respeita o horário de verão', () => {
   assert.equal(zonedToUtc('2027-04-01', '08:30', 'America/New_York').toISOString(), '2027-04-01T12:30:00.000Z')
 })
+
+const rdf = `<?xml version="1.0"?><rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://purl.org/rss/1.0/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+<channel rdf:about="https://www.bankofcanada.ca/"><title>Press releases</title></channel>
+<item rdf:about="https://www.bankofcanada.ca/2026/10/fad-press-release-2026-10-28/"><title>Bank of Canada raises the policy rate by 25 basis points to 2½%</title>
+<link>https://www.bankofcanada.ca/2026/10/fad-press-release-2026-10-28/</link><dc:date>2026-10-28T09:47:20+00:00</dc:date><description>The Bank of Canada today raised its target for the overnight rate.</description></item>
+</rdf:RDF>`
+
+test('parseFeed lê RSS 1.0 (RDF) do Banco do Canadá com dc:date e liga ao tema de taxas', () => {
+  const items = parseFeed(rdf)
+  assert.equal(items.length, 1)
+  assert.equal(items[0].publishedAt, '2026-10-28T09:47:20.000Z')
+  const rows = buildRows(items, { sourceId: 'boc', url: 'x', type: 'official' }, assets, new Date('2026-11-13T12:00:00Z'))
+  assert.equal(rows.length, 1)
+  assert.deepEqual(rows[0].themes, ['taxas-de-juro'])
+  assert.equal(rows[0].article.source_id, 'boc')
+})

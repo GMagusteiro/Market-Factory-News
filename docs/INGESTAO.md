@@ -1,6 +1,6 @@
 # Pôr a recolha de notícias a funcionar (passos do Gonçalo)
 
-A função `supabase/functions/ingest-news/index.ts` lê os feeds oficiais (Fed, BCE, SEC) e guarda título, fonte, data, link e um excerto curto.
+A função `supabase/functions/ingest-news/index.ts` lê os feeds oficiais (Fed, BCE, SEC, Banco do Canadá) e guarda título, fonte, data, link e um excerto curto.
 
 1. **SQL Editor** → nova query → colar `supabase/migrations/0004_fontes_oficiais.sql` → Run.
 2. **Edge Functions** → Deploy a new function → nome `ingest-news` → colar o conteúdo de `supabase/functions/ingest-news/index.ts` → Deploy.
@@ -26,3 +26,8 @@ Limites conhecidos: sem agrupamento em histórias (cada artigo fica sozinho); li
 ## Calendário (BLS)
 
 A função `ingest-news` também lê o calendário oficial do BLS (`bls.ics`) e grava IPC, emprego, PPI, JOLTS, etc. em `calendar_events` (ids `bls-…`). Depois de atualizar o código da função no painel (colar o novo `index.ts` e Deploy), a resposta do teste passa a incluir uma linha com o número de eventos do BLS.
+
+## Banco do Canadá (acrescentado em 2026-11-13)
+1. SQL Editor: corre `supabase/migrations/0010_fonte_banco_canada.sql` (cria a fonte `boc`).
+2. Edge Functions > `ingest-news` > Code: substitui pelo conteúdo atual de `supabase/functions/ingest-news/index.ts` e faz Deploy.
+3. Testa com Invoke: na resposta deve aparecer a linha do feed `bankofcanada.ca` com um número de artigos.
